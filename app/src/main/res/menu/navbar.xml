@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
+    <menu xmlns:android="http://schemas.android.com/apk/res/android">
+        <item
+            android:id="@+id/navigation_home"
+            android:icon="@drawable/ic_home"
+            android:title="Maison" />
+
+        <item
+            android:id="@+id/navigation_devices"
+            android:icon="@drawable/ic_devices"
+            android:title="Appareils" />
+
+        <item
+            android:id="@+id/navigation_profile"
+            android:icon="@drawable/ic_invites"
+            android:title="invite" />
+    </menu>
+</LinearLayout>
