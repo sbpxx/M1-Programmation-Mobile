@@ -23,6 +23,7 @@ class MenuActivity : AppCompatActivity() {
         setContentView(R.layout.activity_menu)
 
 
+
         loadMaisons()
         initializeMaisonsList()
         findViewById<ListView>(R.id.ListView).setOnItemClickListener(::onItemClicked)

@@ -1,5 +1,6 @@
 package com.sidali.projet
 
+import android.content.Intent
 import android.os.Bundle
 import android.widget.ListView
 import androidx.activity.enableEdgeToEdge
@@ -20,6 +21,7 @@ class RemoteActivity : AppCompatActivity() {
         }
         loadDevices()
         initializeDevicesList()
+
     }
 
     private var Ldevices: DevicesListData = DevicesListData(ArrayList())
@@ -53,6 +55,56 @@ class RemoteActivity : AppCompatActivity() {
 
     private fun initializeDevicesList() {
         val listV = findViewById<ListView>(R.id.listview2)
-        listV.adapter = RemoteAdapter(this, Ldevices.devices)
+        listV.adapter = RemoteAdapter(this, Ldevices.devices, intent.getStringExtra("houseId").toString(),intent.getStringExtra("token").toString()){ deviceId, availableCommands ,type,power ,opening ->
+
+            onDeviceSelected(deviceId, availableCommands,type,power,opening)}
     }
+
+    private fun onDeviceSelected(deviceId: String,availableCommands: ArrayList<String>,type:String, power :Int?, opening :Int?) {
+
+        var selectedCommand = ""
+        println("Device sélectionné : $deviceId")
+        println("Commandes disponibles : $availableCommands")
+
+        if (availableCommands.isNotEmpty()) {
+            if (type == "light" && power == 0){
+            selectedCommand = availableCommands[0]
+                sendCommandToDevice(deviceId, selectedCommand, power, opening)
+        }else if (type == "light" && power == 1){
+             selectedCommand = availableCommands[1]
+                sendCommandToDevice(deviceId, selectedCommand, power, opening)
+        }else if (type == "rolling shutter" || type == "garage door"){
+                val intentRinterface= Intent(this,RollingInterface::class.java)
+
+
+                intentRinterface.putExtra("token",intent.getStringExtra("token").toString())
+                intentRinterface.putExtra("houseId",intent.getStringExtra("houseId").toString())
+                intentRinterface.putExtra("deviceId",deviceId)
+                intentRinterface.putExtra("availableCommands",availableCommands)
+
+                startActivity(intentRinterface)
+        }
+
+
+        }
+
+    }
+
+    private fun sendCommandToDevice(deviceId: String, command: String, power :Int?, opening :Int?) {
+        val token = intent.getStringExtra("token")
+        val houseId = intent.getStringExtra("houseId")
+        val deviceCommand = DeviceCommand(command)
+        Api().post("https://polyhome.lesmoulinsdudev.com/api/houses/$houseId/devices/$deviceId/command",deviceCommand,::onCommandSuccess,token)
+
+    }
+
+    private fun onCommandSuccess(responseCode: Int) {
+        if (responseCode == 200) {
+            println("Commande envoyée avec succès")
+            loadDevices()
+        } else {
+            println("Erreur lors de l'envoi de la commande")}
+
+        }
+
 }
