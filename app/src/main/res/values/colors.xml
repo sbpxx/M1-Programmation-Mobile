@@ -2,4 +2,19 @@
 <resources>
     <color name="black">#FF000000</color>
     <color name="white">#FFFFFFFF</color>
+
+
+    <color name="boutton_grad" xmlns:android="http://schemas.android.com/apk/res/android"
+        android:shape="rectangle">
+
+
+        <gradient
+            android:startColor="#3c2670"
+            android:endColor="#1a0057"
+            android:angle="180"
+            android:type="linear" />
+
+
+
+    </color>
 </resources>
