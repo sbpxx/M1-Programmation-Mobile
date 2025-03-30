@@ -21,7 +21,7 @@ class RemoteActivity : AppCompatActivity() {
         }
         loadDevices()
         initializeDevicesList()
-
+        setupBottomNavUtils()
     }
 
     private var Ldevices: DevicesListData = DevicesListData(ArrayList())
@@ -104,7 +104,10 @@ class RemoteActivity : AppCompatActivity() {
             loadDevices()
         } else {
             println("Erreur lors de l'envoi de la commande")}
-
         }
 
+    override fun onResume() {
+        super.onResume()
+        updateSelectedNavItem(findViewById(R.id.bottom_navigation))
+    }
 }

@@ -27,6 +27,7 @@ class MenuActivity : AppCompatActivity() {
         loadMaisons()
         initializeMaisonsList()
         findViewById<ListView>(R.id.ListView).setOnItemClickListener(::onItemClicked)
+        setupBottomNavUtils()
     }
 
 
@@ -68,5 +69,9 @@ class MenuActivity : AppCompatActivity() {
         startActivity(intentRemote)
     }
 
+    override fun onResume() {
+        super.onResume()
+        updateSelectedNavItem(findViewById(R.id.bottom_navigation))
+    }
 
 }

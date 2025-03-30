@@ -4,19 +4,14 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@drawable/background_gradient"
-    android:padding="24dp"
-    android:paddingLeft="24dp"
-    android:paddingTop="24dp"
-    android:paddingRight="24dp"
-    android:paddingBottom="24dp">
+    android:background="@drawable/background_gradient">
 
     <TextView
         android:id="@+id/textView2"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginTop="240dp"
-        android:text="S'enregister"
+        android:text="Rejoignez nous !"
         android:textColor="@color/white"
         android:textSize="20sp"
         app:layout_constraintEnd_toEndOf="parent"
@@ -27,9 +22,9 @@
     <EditText
         android:id="@+id/txtRegLogin"
         android:layout_width="0dp"
-        android:layout_height="50dp"
+        android:layout_height="46dp"
         android:layout_marginStart="30dp"
-        android:layout_marginTop="50dp"
+        android:layout_marginTop="16dp"
         android:layout_marginEnd="30dp"
         android:background="@drawable/edittext_gradient"
         android:drawableStart="@drawable/ic_account"
@@ -40,7 +35,7 @@
         android:paddingStart="15dp"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/textView2" />
+        app:layout_constraintTop_toBottomOf="@+id/textView6" />
 
     <EditText
         android:id="@+id/txtRegPassword"
@@ -68,7 +63,7 @@
         android:layout_marginTop="50dp"
         android:layout_marginEnd="30dp"
         android:background="@drawable/button_gradient"
-        android:onClick="loginAccount"
+        android:onClick="register"
         android:text="Se connecter"
         android:textColor="@color/white"
         app:layout_constraintEnd_toEndOf="parent"
@@ -98,8 +93,21 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:backgroundTint="#00FFFFFF"
-            android:onClick="register"
+            android:onClick="loginAccount"
             android:text="S'enregistrer"
             android:textColor="@color/white" />
     </LinearLayout>
+
+    <TextView
+        android:id="@+id/textView6"
+        android:layout_width="wrap_content"
+        android:layout_height="20dp"
+        android:layout_marginTop="15dp"
+        android:text="Votre confort commence par une inscription"
+        android:textColor="#FFFFFF"
+        android:textSize="16sp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/textView2" />
+
 </androidx.constraintlayout.widget.ConstraintLayout>
