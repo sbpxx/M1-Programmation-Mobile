@@ -8,9 +8,7 @@
     android:background="@drawable/background_gradient"
     tools:context=".FirstActivity">
 
-    <!-- Logo/Titre Plantly -->
 
-    <!-- Sous-titre 1 -->
 
     <TextView
         android:id="@+id/title"
@@ -39,7 +37,7 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@id/title" />
 
-    <!-- Sous-titre 2 -->
+
     <TextView
         android:id="@+id/subtitle2"
         android:layout_width="wrap_content"
@@ -53,7 +51,7 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@id/subtitle1" />
 
-    <!-- Bouton LOGIN -->
+
     <Button
         android:id="@+id/loginButton"
         android:layout_width="200dp"
@@ -65,20 +63,20 @@
         android:onClick="loginButton"
         android:text="CONNEXION"
         android:textAllCaps="false"
-        android:textColor="#6A0DAD"
+        android:textColor="#7E219A"
         android:textSize="16sp"
+        app:cornerRadius="8dp"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@id/subtitle2" />
 
-    <!-- Bouton SIGN UP -->
 
     <Button
         android:id="@+id/signupButton"
         android:layout_width="200dp"
         android:layout_height="50dp"
         android:layout_marginTop="30dp"
-        android:background="@android:color/transparent"
+        android:background="@drawable/border_btn_gradient"
         android:elevation="4dp"
         android:fontFamily="sans-serif-medium"
         android:onClick="registerButton"
@@ -87,6 +85,7 @@
         android:textAllCaps="false"
         android:textColor="#FFFFFF"
         android:textSize="16sp"
+        app:circularflow_defaultRadius="8dp"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.511"
         app:layout_constraintStart_toStartOf="parent"

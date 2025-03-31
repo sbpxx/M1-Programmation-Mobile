@@ -14,14 +14,11 @@ class RemoteActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
         setContentView(R.layout.activity_remote)
-        ViewCompat.setOnApplyWindowInsetsListener(findViewById(R.id.main)) { v, insets ->
-            val systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars())
-            v.setPadding(systemBars.left, systemBars.top, systemBars.right, systemBars.bottom)
-            insets
-        }
+
         loadDevices()
         initializeDevicesList()
-        setupBottomNavUtils()
+        setupBottomNavUtils(intent.getStringExtra("houseId").toString(), intent.getStringExtra("token").toString())
+        setupTopNavUtils(intent.getStringExtra("houseId").toString(), intent.getStringExtra("token").toString())
     }
 
     private var Ldevices: DevicesListData = DevicesListData(ArrayList())

@@ -16,18 +16,16 @@ import androidx.core.view.WindowInsetsCompat
 import com.example.androidtp2.Api
 
 class MenuActivity : AppCompatActivity() {
-    lateinit var maisonsAdapter : ArrayAdapter<MaisonData>
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
         setContentView(R.layout.activity_menu)
 
-
-
         loadMaisons()
         initializeMaisonsList()
         findViewById<ListView>(R.id.ListView).setOnItemClickListener(::onItemClicked)
-        setupBottomNavUtils()
+        setupTopNavUtils(null, intent.getStringExtra("token").toString())
     }
 
 
@@ -71,7 +69,7 @@ class MenuActivity : AppCompatActivity() {
 
     override fun onResume() {
         super.onResume()
-        updateSelectedNavItem(findViewById(R.id.bottom_navigation))
+        loadMaisons()
     }
 
 }

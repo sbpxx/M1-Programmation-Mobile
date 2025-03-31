@@ -7,6 +7,21 @@
     android:layout_height="match_parent"
     tools:context=".InviteActivity">
 
+    <com.google.android.material.appbar.MaterialToolbar
+        android:id="@+id/topAppBar"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:background="?attr/colorPrimary"
+        android:paddingTop="30dp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:menu="@menu/topbar"
+        app:popupTheme="@style/ThemeOverlay.Material3.Light"
+        app:title=""
+        app:titleTextColor="@android:color/white"
+        tools:ignore="MissingConstraints" />
+
     <TextView
         android:id="@+id/textView8"
         android:layout_width="wrap_content"
@@ -25,7 +40,7 @@
         android:text="Invitations"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent" />
+        app:layout_constraintTop_toBottomOf="@+id/topAppBar" />
 
     <LinearLayout
         android:id="@+id/linearLayout3"
@@ -33,26 +48,29 @@
         android:layout_height="wrap_content"
         android:layout_marginTop="1dp"
         android:orientation="horizontal"
+        android:paddingLeft="15dp"
+        android:paddingRight="15dp"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/textView7">
 
         <EditText
-            android:id="@+id/editTextText"
-            android:layout_width="237dp"
-            android:layout_height="wrap_content"
-            android:layout_weight="1"
-            android:ems="10"
-            android:inputType="text"
-            android:paddingStart="20dp"
-            android:text="Name" />
-
-        <Button
-            android:id="@+id/button7"
+            android:id="@+id/editTextInviteName"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_weight="1"
-            android:text="Button" />
+            android:ems="10"
+            android:hint="Nom utilisateur"
+            android:inputType="text"
+            android:paddingStart="20dp" />
+
+        <Button
+            android:id="@+id/BouttonAjoutUtilisateur"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:onClick="addGuest"
+            android:text="Ajouter" />
     </LinearLayout>
 
     <ListView
@@ -61,6 +79,8 @@
         android:layout_height="0dp"
         android:layout_marginStart="1dp"
         android:layout_marginTop="15dp"
+        android:paddingLeft="15dp"
+        android:paddingRight="15dp"
         app:layout_constraintBottom_toTopOf="@+id/bottom_navigation"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"

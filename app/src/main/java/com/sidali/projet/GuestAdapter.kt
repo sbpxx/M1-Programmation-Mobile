@@ -6,6 +6,8 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.BaseAdapter
+import android.widget.Button
+import android.widget.ImageView
 import android.widget.TextView
 import androidx.activity.enableEdgeToEdge
 import androidx.appcompat.app.AppCompatActivity
@@ -14,7 +16,8 @@ import androidx.core.view.WindowInsetsCompat
 
 class GuestAdapter(
 private var context : Context,
-private var dataSource : ArrayList<GuestData>
+private var dataSource : ArrayList<GuestData>,
+private val deleteCallback: (String) -> Unit
 ): BaseAdapter(){
     private val inflater : LayoutInflater = context.getSystemService(Context.LAYOUT_INFLATER_SERVICE) as LayoutInflater
 
@@ -32,12 +35,29 @@ private var dataSource : ArrayList<GuestData>
 
     override fun getView(position: Int, convertView: View?, parent: ViewGroup?): View {
         val view = inflater.inflate(R.layout.activity_guest_adapter,parent,false)
-
+        val crown = view.findViewById<ImageView>(R.id.ic_crown)
+        val deleteButton = view.findViewById<Button>(R.id.deleteButton)
         val guestNameTxt = view.findViewById<TextView>(R.id.textView9)
-
         val guest = getItem(position) as GuestData
+        guestNameTxt.text = guest.userLogin
 
-        guestNameTxt.text = "maison de "+guest.userLogin.toString()
+        if (position == 0){
+            deleteButton.visibility = View.GONE
+            crown.visibility = View.VISIBLE
+        }else{
+            deleteButton.visibility = View.VISIBLE
+            crown.visibility = View.GONE
+            deleteButton.setOnClickListener {
+                deleteCallback(guest.userLogin)
+            }
+        }
+
+
+
+
+        deleteButton.setOnClickListener {
+            deleteCallback(guest.userLogin)
+        }
 
         return view
     }

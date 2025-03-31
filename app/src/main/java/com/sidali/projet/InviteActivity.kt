@@ -1,7 +1,9 @@
 package com.sidali.projet
 
 import android.os.Bundle
+import android.view.View
 import android.widget.ArrayAdapter
+import android.widget.EditText
 import android.widget.ListView
 import androidx.activity.enableEdgeToEdge
 import androidx.appcompat.app.AppCompatActivity
@@ -17,15 +19,12 @@ class InviteActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
         setContentView(R.layout.activity_invite)
-        ViewCompat.setOnApplyWindowInsetsListener(findViewById(R.id.main)) { v, insets ->
-            val systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars())
-            v.setPadding(systemBars.left, systemBars.top, systemBars.right, systemBars.bottom)
-            insets
-        }
+
 
         loadGuests()
         initializeGuestsList()
-        setupBottomNavUtils()
+        setupBottomNavUtils(intent.getStringExtra("houseId").toString(), intent.getStringExtra("token").toString())
+        setupTopNavUtils(intent.getStringExtra("houseId").toString(), intent.getStringExtra("token").toString())
     }
 
     private val guests : ArrayList<GuestData> = ArrayList()
@@ -53,11 +52,56 @@ class InviteActivity : AppCompatActivity() {
 
     private fun initializeGuestsList(){
         val listV = findViewById<ListView>(R.id.listViewGuest)
-        listV.adapter = GuestAdapter(this,guests)
+        listV.adapter = GuestAdapter(this,guests){ userLogin ->
+            removeGuest(userLogin)
+        }
+    }
+
+    public fun addGuest(view: View){
+        val houseId = intent.getStringExtra("houseId")
+        val token = intent.getStringExtra("token")
+        println("addGuest")
+        println(houseId)
+        println(token)
+
+        val guest: UserData = UserData(findViewById<EditText>(R.id.editTextInviteName).text.toString())
+        println(guest)
+        Api().post("https://polyhome.lesmoulinsdudev.com/api/houses/$houseId/users",guest,::addGuestSuccess,token)
+        findViewById<EditText>(R.id.editTextInviteName).setText("")
+    }
+
+    private fun addGuestSuccess(responseCode:Int){
+        if (responseCode == 200){
+            loadGuests()
+
+        }else{
+            println(responseCode)}
+    }
+
+    private fun removeGuest(userLogin:String){
+        val houseId = intent.getStringExtra("houseId")
+        val token = intent.getStringExtra("token")
+        val guest = UserData(userLogin)
+        println("addGuest")
+        println(houseId)
+        println(token)
+        println(houseId)
+
+        Api().delete("https://polyhome.lesmoulinsdudev.com/api/houses/$houseId/users",guest,::removeGuestSuccess,token)
+    }
+
+    private fun removeGuestSuccess(responseCode:Int) {
+        if (responseCode == 200) {
+            loadGuests()
+        } else {
+            println(responseCode)
+        }
     }
 
     override fun onResume() {
         super.onResume()
         updateSelectedNavItem(findViewById(R.id.bottom_navigation))
+        loadGuests()
+
     }
 }

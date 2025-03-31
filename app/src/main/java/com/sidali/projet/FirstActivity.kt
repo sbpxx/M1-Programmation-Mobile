@@ -23,10 +23,12 @@ class FirstActivity : AppCompatActivity() {
     public fun loginButton(view: View){
         val intentLogin = Intent(this,LoginActivity::class.java)
         startActivity(intentLogin)
+        finish()
     }
 
     public fun registerButton(view: View){
         val intentRegister = Intent(this,RegisterActivity::class.java)
         startActivity(intentRegister)
+        finish()
     }
 }
