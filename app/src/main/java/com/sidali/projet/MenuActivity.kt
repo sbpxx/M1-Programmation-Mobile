@@ -52,7 +52,7 @@ class MenuActivity : AppCompatActivity() {
 
     private fun initializeMaisonsList(){
         val listV = findViewById<ListView>(R.id.ListView)
-        listV.adapter = MaisonAdapter(this,maisons)
+        listV.adapter = MaisonAdapter(this,maisons,intent.getStringExtra("token").toString())
     }
 
 

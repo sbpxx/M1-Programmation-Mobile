@@ -5,14 +5,17 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.BaseAdapter
+import android.widget.ImageView
 import android.widget.TextView
+import com.example.androidtp2.Api
 
 class MaisonAdapter(
     private var context : Context,
-    private var dataSource : ArrayList<MaisonData>
+    private var dataSource : ArrayList<MaisonData>,
+    private var token : String
 ): BaseAdapter(){
     private val inflater : LayoutInflater = context.getSystemService(Context.LAYOUT_INFLATER_SERVICE) as LayoutInflater
-
+    var owner : String = ""
     override fun getCount(): Int {
         return dataSource.size
     }
@@ -27,15 +30,34 @@ class MaisonAdapter(
 
     override fun getView(position: Int, convertView: View?, parent: ViewGroup?): View {
         val view = inflater.inflate(R.layout.maison_layout,parent,false)
-
         val maisonTxt = view.findViewById<TextView>(R.id.textView)
-
+        val crown = view.findViewById<ImageView>(R.id.ic_maisonCrown)
         val maison = getItem(position) as MaisonData
 
-        maisonTxt.text = "maison de "+maison.houseId.toString()
+
+
+        if(position==0){
+            maisonTxt.text="Votre Maison"
+            crown.visibility = View.VISIBLE
+        }else{
+
+            crown.visibility = View.GONE
+            getMaisonOwner(maison.houseId.toString(),token)
+            maisonTxt.text = "Maison de ${owner}"
+        }
+
 
         return view
     }
 
 
+    private fun getMaisonOwner(houseId:String,token:String){
+        Api().get<ArrayList<GuestData>>("https://polyhome.lesmoulinsdudev.com/api/houses/$houseId/users",::getMaisonOwnerSuccess,token)
+    }
+
+    private fun getMaisonOwnerSuccess(responseCode:Int,listGuests:ArrayList<GuestData>?) {
+        if (responseCode == 200 && listGuests != null) {
+            owner =listGuests[0].userLogin
+        }
+    }
 }

@@ -2,14 +2,26 @@ package com.sidali.projet
 
 import android.content.Intent
 import android.os.Bundle
+import android.view.View
 import android.widget.ListView
+import android.widget.TextView
 import androidx.activity.enableEdgeToEdge
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
+import androidx.lifecycle.lifecycleScope
 import com.example.androidtp2.Api
+import kotlinx.coroutines.Job
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.isActive
+import kotlinx.coroutines.launch
+import java.util.Timer
+import kotlin.concurrent.schedule
 
 class RemoteActivity : AppCompatActivity() {
+    private lateinit var waitMsg: TextView
+    private var refreshJob: Job? = null
+    private val refreshInterval = 15_000L
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
@@ -19,6 +31,7 @@ class RemoteActivity : AppCompatActivity() {
         initializeDevicesList()
         setupBottomNavUtils(intent.getStringExtra("houseId").toString(), intent.getStringExtra("token").toString())
         setupTopNavUtils(intent.getStringExtra("houseId").toString(), intent.getStringExtra("token").toString())
+
     }
 
     private var Ldevices: DevicesListData = DevicesListData(ArrayList())
@@ -35,16 +48,39 @@ class RemoteActivity : AppCompatActivity() {
     }
 
     private fun RemoteListSuccess(responseCode: Int, listDevices: DevicesListData?) {
+        waitMsg = findViewById<TextView>(R.id.waitingMessage)
+
         if (responseCode == 200 && listDevices != null) {
+            if (waitMsg.visibility == View.VISIBLE) {waitMsg.visibility = View.GONE}
             println(Ldevices)
             Ldevices.devices.clear()
             Ldevices.devices.addAll(listDevices.devices)
             updateDevicesList()
+            refreshJob?.cancel()
+        } else {
+            if (waitMsg.visibility == View.GONE) {waitMsg.visibility = View.VISIBLE}
+            println("AAAAAAAAAAAA"+responseCode)
+            waitReloader()
+        }
+    }
+
+    private fun waitReloader() {
+        // Annule le précédent job s'il existe
+        refreshJob?.cancel()
+
+        // Crée un nouveau job
+        refreshJob = lifecycleScope.launch {
+            while (isActive) {  // Boucle tant que la coroutine est active
+                loadDevices()   // Exécute la requête
+                delay(refreshInterval) // Attend 15 secondes
+            }
         }
     }
 
     private fun updateDevicesList() {
         val listV = findViewById<ListView>(R.id.listview2)
+
+
         runOnUiThread {
             (listV.adapter as RemoteAdapter).notifyDataSetChanged()
         }
@@ -65,10 +101,10 @@ class RemoteActivity : AppCompatActivity() {
 
         if (availableCommands.isNotEmpty()) {
             if (type == "light" && power == 0){
-            selectedCommand = availableCommands[0]
+                selectedCommand = availableCommands[0]
                 sendCommandToDevice(deviceId, selectedCommand, power, opening)
         }else if (type == "light" && power == 1){
-             selectedCommand = availableCommands[1]
+                selectedCommand = availableCommands[1]
                 sendCommandToDevice(deviceId, selectedCommand, power, opening)
         }else if (type == "rolling shutter" || type == "garage door"){
                 val intentRinterface= Intent(this,RollingInterface::class.java)
@@ -106,5 +142,10 @@ class RemoteActivity : AppCompatActivity() {
     override fun onResume() {
         super.onResume()
         updateSelectedNavItem(findViewById(R.id.bottom_navigation))
+    }
+
+    override fun onDestroy() {
+        refreshJob?.cancel()
+        super.onDestroy()
     }
 }
