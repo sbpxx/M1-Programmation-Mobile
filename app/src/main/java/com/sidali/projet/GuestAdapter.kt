@@ -17,6 +17,7 @@ import androidx.core.view.WindowInsetsCompat
 class GuestAdapter(
 private var context : Context,
 private var dataSource : ArrayList<GuestData>,
+private var isOwner : Boolean,
 private val deleteCallback: (String) -> Unit
 ): BaseAdapter(){
     private val inflater : LayoutInflater = context.getSystemService(Context.LAYOUT_INFLATER_SERVICE) as LayoutInflater
@@ -49,6 +50,12 @@ private val deleteCallback: (String) -> Unit
             crown.visibility = View.GONE
             deleteButton.setOnClickListener {
                 deleteCallback(guest.userLogin)
+            }
+
+            if (isOwner&&position>0){
+                deleteButton.visibility = View.VISIBLE
+            }else{
+                deleteButton.visibility = View.GONE
             }
         }
 

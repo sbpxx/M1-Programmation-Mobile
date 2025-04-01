@@ -1,10 +1,18 @@
 package com.sidali.projet
 
 import android.app.Activity
+import android.content.Context.MODE_PRIVATE
 import android.content.Intent
 import com.google.android.material.appbar.MaterialToolbar
 import com.google.android.material.bottomnavigation.BottomNavigationView
 
+// Fonction pour récupérer le token depuis les préférences partagées
+fun Activity.getToken(): String {
+    val sharedPreferences = getSharedPreferences("UserPrefs", MODE_PRIVATE)
+    return sharedPreferences.getString("token", "").toString()
+}
+
+// Fonction pour setup la barre de navigation supérieure
 fun Activity.setupTopNavUtils(houseId: String?, token: String) {
     val topAppBar = findViewById<MaterialToolbar>(R.id.topAppBar)
     topAppBar.setOnMenuItemClickListener { menuItem ->
@@ -12,6 +20,8 @@ fun Activity.setupTopNavUtils(houseId: String?, token: String) {
         true
     }
 }
+
+// Fonction pour setup la barre de navigation inférieure
 fun Activity.setupBottomNavUtils(houseId: String, token: String) {
     val bottomNav = findViewById<BottomNavigationView>(R.id.bottom_navigation)
     bottomNav.itemIconTintList = null

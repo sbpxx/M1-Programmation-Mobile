@@ -7,4 +7,14 @@
     android:layout_height="match_parent"
     tools:context=".SettingsActivity">
 
+    <Button
+        android:id="@+id/DisconnectButton"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:onClick="Disconnect"
+        android:text="DECONNEXION"
+        android:textColor="#FF0000"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent" />
 </androidx.constraintlayout.widget.ConstraintLayout>

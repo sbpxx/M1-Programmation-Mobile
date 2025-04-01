@@ -17,22 +17,26 @@ import com.example.androidtp2.Api
 
 class MenuActivity : AppCompatActivity() {
 
+    private lateinit var token : String
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
         setContentView(R.layout.activity_menu)
 
+        token = getToken()
         loadMaisons()
         initializeMaisonsList()
         findViewById<ListView>(R.id.ListView).setOnItemClickListener(::onItemClicked)
-        setupTopNavUtils(null, intent.getStringExtra("token").toString())
+        setupTopNavUtils(null, token)
+
     }
+
 
 
     private val maisons : ArrayList<MaisonData> = ArrayList()
 
     private fun loadMaisons(){
-        Api().get<ArrayList<MaisonData>>("https://polyhome.lesmoulinsdudev.com/api/houses",::getMaisonSuccess,intent.getStringExtra("token"))
+        Api().get<ArrayList<MaisonData>>("https://polyhome.lesmoulinsdudev.com/api/houses",::getMaisonSuccess,token)
     }
 
     private fun getMaisonSuccess(responseCode:Int,listMaisons:ArrayList<MaisonData>?){
@@ -52,7 +56,7 @@ class MenuActivity : AppCompatActivity() {
 
     private fun initializeMaisonsList(){
         val listV = findViewById<ListView>(R.id.ListView)
-        listV.adapter = MaisonAdapter(this,maisons,intent.getStringExtra("token").toString())
+        listV.adapter = MaisonAdapter(this,maisons,token)
     }
 
 
@@ -63,7 +67,6 @@ class MenuActivity : AppCompatActivity() {
         println("Item cliqué : "+clickedItem.houseId)
         val intentRemote = Intent(this,RemoteActivity::class.java)
         intentRemote.putExtra("houseId",clickedItem.houseId.toString())
-        intentRemote.putExtra("token",intent.getStringExtra("token"))
         startActivity(intentRemote)
     }
 

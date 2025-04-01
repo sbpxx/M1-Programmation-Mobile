@@ -9,6 +9,10 @@ import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
 
 class FirstActivity : AppCompatActivity() {
+
+    private lateinit var intentLogin: Intent
+    private lateinit var intentRegister: Intent
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
@@ -18,17 +22,29 @@ class FirstActivity : AppCompatActivity() {
             v.setPadding(systemBars.left, systemBars.top, systemBars.right, systemBars.bottom)
             insets
         }
+         intentLogin = Intent(this,LoginActivity::class.java)
+         intentRegister = Intent(this,RegisterActivity::class.java)
+        isAutoConnexion()
     }
 
     public fun loginButton(view: View){
-        val intentLogin = Intent(this,LoginActivity::class.java)
         startActivity(intentLogin)
         finish()
     }
 
     public fun registerButton(view: View){
-        val intentRegister = Intent(this,RegisterActivity::class.java)
         startActivity(intentRegister)
         finish()
+    }
+
+    private fun isAutoConnexion(){
+
+        val sharedPreferences = getSharedPreferences("UserPrefs", MODE_PRIVATE)
+        val stayConnected = sharedPreferences.getBoolean("stayConnected", false)
+
+        if (stayConnected) {
+            startActivity(intentLogin)
+            finish()
+        }
     }
 }

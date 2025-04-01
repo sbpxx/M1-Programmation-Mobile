@@ -11,7 +11,7 @@ import com.example.androidtp2.Api
 class RollingInterface : AppCompatActivity() {
     lateinit var houseId:String
     lateinit var deviceId:String
-    lateinit var token:String
+    lateinit var token: String
     lateinit var availableCommands:ArrayList<String>
     lateinit var deviceCommand: DeviceCommand
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -23,15 +23,20 @@ class RollingInterface : AppCompatActivity() {
             v.setPadding(systemBars.left, systemBars.top, systemBars.right, systemBars.bottom)
             insets
         }
+
+        token = getToken()
+
         houseId = intent.getStringExtra("houseId").toString()
         deviceId = intent.getStringExtra("deviceId").toString()
-        token = intent.getStringExtra("token").toString()
         availableCommands = intent.getStringArrayListExtra("availableCommands") as ArrayList<String>
+
         println("HouseId : $houseId")
         println("DeviceId : $deviceId")
         println("Token : $token")
 
     }
+
+
 
     public fun monter(view:View){
         println("test click btn $houseId")

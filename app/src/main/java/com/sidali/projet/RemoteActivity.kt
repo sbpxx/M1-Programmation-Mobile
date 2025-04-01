@@ -19,6 +19,7 @@ import java.util.Timer
 import kotlin.concurrent.schedule
 
 class RemoteActivity : AppCompatActivity() {
+    private lateinit var token: String
     private lateinit var waitMsg: TextView
     private var refreshJob: Job? = null
     private val refreshInterval = 15_000L
@@ -27,23 +28,26 @@ class RemoteActivity : AppCompatActivity() {
         enableEdgeToEdge()
         setContentView(R.layout.activity_remote)
 
+        token = getToken()
         loadDevices()
         initializeDevicesList()
-        setupBottomNavUtils(intent.getStringExtra("houseId").toString(), intent.getStringExtra("token").toString())
-        setupTopNavUtils(intent.getStringExtra("houseId").toString(), intent.getStringExtra("token").toString())
+        setupBottomNavUtils(intent.getStringExtra("houseId").toString(),token)
+        setupTopNavUtils(intent.getStringExtra("houseId").toString(),token)
 
     }
+
+
 
     private var Ldevices: DevicesListData = DevicesListData(ArrayList())
 
     private fun loadDevices() {
         val houseId: String = intent.getStringExtra("houseId").toString()
-        val token: TokenData = TokenData(intent.getStringExtra("token").toString())
+
 
         Api().get(
             "https://polyhome.lesmoulinsdudev.com/api/houses/$houseId/devices",
             ::RemoteListSuccess,
-            token.token
+            token
         )
     }
 
@@ -88,7 +92,7 @@ class RemoteActivity : AppCompatActivity() {
 
     private fun initializeDevicesList() {
         val listV = findViewById<ListView>(R.id.listview2)
-        listV.adapter = RemoteAdapter(this, Ldevices.devices, intent.getStringExtra("houseId").toString(),intent.getStringExtra("token").toString()){ deviceId, availableCommands ,type,power ,opening ->
+        listV.adapter = RemoteAdapter(this, Ldevices.devices, intent.getStringExtra("houseId").toString(),token){ deviceId, availableCommands ,type,power ,opening ->
 
             onDeviceSelected(deviceId, availableCommands,type,power,opening)}
     }
@@ -110,7 +114,6 @@ class RemoteActivity : AppCompatActivity() {
                 val intentRinterface= Intent(this,RollingInterface::class.java)
 
 
-                intentRinterface.putExtra("token",intent.getStringExtra("token").toString())
                 intentRinterface.putExtra("houseId",intent.getStringExtra("houseId").toString())
                 intentRinterface.putExtra("deviceId",deviceId)
                 intentRinterface.putExtra("availableCommands",availableCommands)
