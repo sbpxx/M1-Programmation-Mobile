@@ -2,27 +2,33 @@ package com.sidali.projet
 
 import android.os.Bundle
 import android.view.View
+import android.widget.TextView
 import androidx.activity.enableEdgeToEdge
 import androidx.appcompat.app.AppCompatActivity
-import androidx.core.view.ViewCompat
-import androidx.core.view.WindowInsetsCompat
+import androidx.lifecycle.lifecycleScope
 import com.example.androidtp2.Api
+import kotlinx.coroutines.Job
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.isActive
+import kotlinx.coroutines.launch
 
 class RollingInterface : AppCompatActivity() {
-    lateinit var houseId:String
-    lateinit var deviceId:String
+    lateinit var houseId: String
+    lateinit var deviceId: String
     lateinit var token: String
-    lateinit var availableCommands:ArrayList<String>
+    lateinit var availableCommands: ArrayList<String>
     lateinit var deviceCommand: DeviceCommand
+
+    private lateinit var titleRolling: TextView
+    private lateinit var txtPercentage: TextView
+
+    private var refreshJob: Job? = null
+    private val refreshInterval = 500L
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
         setContentView(R.layout.activity_rolling_interface)
-        ViewCompat.setOnApplyWindowInsetsListener(findViewById(R.id.main)) { v, insets ->
-            val systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars())
-            v.setPadding(systemBars.left, systemBars.top, systemBars.right, systemBars.bottom)
-            insets
-        }
 
         token = getToken()
 
@@ -30,44 +36,77 @@ class RollingInterface : AppCompatActivity() {
         deviceId = intent.getStringExtra("deviceId").toString()
         availableCommands = intent.getStringArrayListExtra("availableCommands") as ArrayList<String>
 
-        println("HouseId : $houseId")
-        println("DeviceId : $deviceId")
-        println("Token : $token")
+        titleRolling = findViewById(R.id.titleRolling)
+        txtPercentage = findViewById(R.id.txtPercentage)
 
+        titleRolling.text = "Contrôle du périphérique : $deviceId"
+
+        refreshPercentage()
     }
 
+    private fun onRefreshingPercentage() {
+        refreshJob?.cancel()
+        refreshJob = lifecycleScope.launch {
+            while (isActive) {
+                refreshPercentage()
+                delay(refreshInterval)
+            }
+        }
+    }
 
+    override fun onDestroy() {
+        refreshJob?.cancel()
+        super.onDestroy()
+    }
 
-    public fun monter(view:View){
-        println("test click btn $houseId")
-        println("test click btn $deviceId")
-        println("test click btn $token")
-        println("test click btn $availableCommands")
+    fun monter(view: View) {
         deviceCommand = DeviceCommand(availableCommands[0])
-        Api().post("https://polyhome.lesmoulinsdudev.com/api/houses/$houseId/devices/$deviceId/command",deviceCommand,::onCommandSuccess,token)
+        Api().post("https://polyhome.lesmoulinsdudev.com/api/houses/$houseId/devices/$deviceId/command", deviceCommand, ::onCommandSuccess, token)
+        onRefreshingPercentage()
     }
 
-    public fun stop(view: View){
+    fun stop(view: View) {
         deviceCommand = DeviceCommand(availableCommands[2])
-        Api().post("https://polyhome.lesmoulinsdudev.com/api/houses/$houseId/devices/$deviceId/command", deviceCommand,::onCommandSuccess,token)
+        Api().post("https://polyhome.lesmoulinsdudev.com/api/houses/$houseId/devices/$deviceId/command", deviceCommand, ::onCommandSuccess, token)
+
+        refreshPercentage()
     }
 
-    public fun descendre(view:View){
-        println("test click btn $houseId")
-        println("test click btn $deviceId")
-        println("test click btn $token")
-        println("test click btn $availableCommands")
+    fun descendre(view: View) {
         deviceCommand = DeviceCommand(availableCommands[1])
-        Api().post("https://polyhome.lesmoulinsdudev.com/api/houses/$houseId/devices/$deviceId/command",deviceCommand,::onCommandSuccess,token)
+        Api().post("https://polyhome.lesmoulinsdudev.com/api/houses/$houseId/devices/$deviceId/command", deviceCommand, ::onCommandSuccess, token)
+        onRefreshingPercentage()
     }
 
     private fun onCommandSuccess(responseCode: Int) {
         if (responseCode == 200) {
             println("Commande envoyée avec succès")
         } else {
-            println("Erreur lors de l'envoi de la commande")
-            println("Code de réponse : $responseCode")
+            println("Erreur lors de l'envoi de la commande : $responseCode")
         }
+    }
 
+    private fun refreshPercentage() {
+        Api().get<DevicesListData>("https://polyhome.lesmoulinsdudev.com/api/houses/$houseId/devices", ::onRefreshSuccess, token)
+    }
+
+    private fun onRefreshSuccess(responseCode: Int, data: DevicesListData?) {
+        if (responseCode == 200 && data != null) {
+            var deviceFound: DeviceData? = null
+            for (device in data.devices) {
+                if (device.id == deviceId) {
+                    deviceFound = device
+                    break
+                }
+            }
+            val percentage: Float? = deviceFound?.opening?.times(100)
+            if (percentage == 0f || percentage == 100f) {
+                refreshJob?.cancel()
+            }
+            runOnUiThread {
+
+                txtPercentage.text = percentage?.toInt().toString() + "%"
+            }
+        }
     }
 }

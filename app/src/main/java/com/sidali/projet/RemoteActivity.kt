@@ -3,6 +3,7 @@ package com.sidali.projet
 import android.content.Intent
 import android.os.Bundle
 import android.view.View
+import android.widget.Button
 import android.widget.ListView
 import android.widget.TextView
 import androidx.activity.enableEdgeToEdge
@@ -22,13 +23,17 @@ class RemoteActivity : AppCompatActivity() {
     private lateinit var token: String
     private lateinit var waitMsg: TextView
     private var refreshJob: Job? = null
-    private val refreshInterval = 15_000L
+    private val refreshInterval = 10_000L
+    private lateinit var houseId: String
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
         setContentView(R.layout.activity_remote)
 
         token = getToken()
+        houseId = intent.getStringExtra("houseId").toString()
+        waitMsg = findViewById<TextView>(R.id.waitingMessage)
+
         loadDevices()
         initializeDevicesList()
         setupBottomNavUtils(intent.getStringExtra("houseId").toString(),token)
@@ -41,9 +46,6 @@ class RemoteActivity : AppCompatActivity() {
     private var Ldevices: DevicesListData = DevicesListData(ArrayList())
 
     private fun loadDevices() {
-        val houseId: String = intent.getStringExtra("houseId").toString()
-
-
         Api().get(
             "https://polyhome.lesmoulinsdudev.com/api/houses/$houseId/devices",
             ::RemoteListSuccess,
@@ -52,31 +54,38 @@ class RemoteActivity : AppCompatActivity() {
     }
 
     private fun RemoteListSuccess(responseCode: Int, listDevices: DevicesListData?) {
-        waitMsg = findViewById<TextView>(R.id.waitingMessage)
 
-        if (responseCode == 200 && listDevices != null) {
-            if (waitMsg.visibility == View.VISIBLE) {waitMsg.visibility = View.GONE}
-            println(Ldevices)
-            Ldevices.devices.clear()
-            Ldevices.devices.addAll(listDevices.devices)
-            updateDevicesList()
-            refreshJob?.cancel()
-        } else {
-            if (waitMsg.visibility == View.GONE) {waitMsg.visibility = View.VISIBLE}
-            println("AAAAAAAAAAAA"+responseCode)
-            waitReloader()
+        runOnUiThread {
+            val btnContainer = findViewById<View>(R.id.buttonContainer)
+            waitMsg.text = "En attente de connexion à votre maison ... ( Maison : $houseId )"
+
+            if (responseCode == 200 && listDevices != null) {
+                if (waitMsg.visibility == View.VISIBLE) {
+                    waitMsg.visibility = View.GONE
+                    btnContainer.visibility = View.VISIBLE
+                }
+                println(Ldevices)
+                Ldevices.devices.clear()
+                Ldevices.devices.addAll(listDevices.devices)
+                updateDevicesList()
+                refreshJob?.cancel()
+            } else {
+                if (waitMsg.visibility == View.GONE) {
+                    btnContainer.visibility = View.GONE
+                    waitMsg.visibility = View.VISIBLE
+                }
+                println("AAAAAAAAAAAA" + responseCode)
+                waitReloader()
+            }
         }
     }
 
     private fun waitReloader() {
-        // Annule le précédent job s'il existe
         refreshJob?.cancel()
-
-        // Crée un nouveau job
         refreshJob = lifecycleScope.launch {
-            while (isActive) {  // Boucle tant que la coroutine est active
-                loadDevices()   // Exécute la requête
-                delay(refreshInterval) // Attend 15 secondes
+            while (isActive) {
+                loadDevices()
+                delay(refreshInterval)
             }
         }
     }
@@ -92,12 +101,12 @@ class RemoteActivity : AppCompatActivity() {
 
     private fun initializeDevicesList() {
         val listV = findViewById<ListView>(R.id.listview2)
-        listV.adapter = RemoteAdapter(this, Ldevices.devices, intent.getStringExtra("houseId").toString(),token){ deviceId, availableCommands ,type,power ,opening ->
+        listV.adapter = RemoteAdapter(this, Ldevices.devices, houseId,token){ deviceId, availableCommands ,type,power ,opening ->
 
             onDeviceSelected(deviceId, availableCommands,type,power,opening)}
     }
 
-    private fun onDeviceSelected(deviceId: String,availableCommands: ArrayList<String>,type:String, power :Int?, opening :Int?) {
+    private fun onDeviceSelected(deviceId: String,availableCommands: ArrayList<String>,type:String, power :Int?, opening :Float?) {
 
         var selectedCommand = ""
         println("Device sélectionné : $deviceId")
@@ -113,8 +122,7 @@ class RemoteActivity : AppCompatActivity() {
         }else if (type == "rolling shutter" || type == "garage door"){
                 val intentRinterface= Intent(this,RollingInterface::class.java)
 
-
-                intentRinterface.putExtra("houseId",intent.getStringExtra("houseId").toString())
+                intentRinterface.putExtra("houseId",houseId)
                 intentRinterface.putExtra("deviceId",deviceId)
                 intentRinterface.putExtra("availableCommands",availableCommands)
 
@@ -126,9 +134,7 @@ class RemoteActivity : AppCompatActivity() {
 
     }
 
-    private fun sendCommandToDevice(deviceId: String, command: String, power :Int?, opening :Int?) {
-        val token = intent.getStringExtra("token")
-        val houseId = intent.getStringExtra("houseId")
+    private fun sendCommandToDevice(deviceId: String, command: String, power :Int?, opening :Float?) {
         val deviceCommand = DeviceCommand(command)
         Api().post("https://polyhome.lesmoulinsdudev.com/api/houses/$houseId/devices/$deviceId/command",deviceCommand,::onCommandSuccess,token)
 
@@ -141,6 +147,45 @@ class RemoteActivity : AppCompatActivity() {
         } else {
             println("Erreur lors de l'envoi de la commande")}
         }
+
+
+
+    public fun turnOffAllLights(view: View){
+        for (device in Ldevices.devices) {
+            if (device.type == "light"){
+                        sendCommandToDevice(device.id, device.availableCommands[1], device.power, device.opening)
+            }
+        }
+    }
+
+    public fun openAllShutters(view: View){
+        for (device in Ldevices.devices) {
+            if (device.type == "rolling shutter"){
+                        sendCommandToDevice(device.id, device.availableCommands[0], device.power, device.opening)
+            }
+        }
+    }
+
+    public fun closeAllShutters(view: View){
+        for (device in Ldevices.devices) {
+            if (device.type == "rolling shutter"){
+                        sendCommandToDevice(device.id, device.availableCommands[1], device.power, device.opening)
+            }
+        }
+    }
+
+    public fun openGarageInterface(view: View){
+        for (device in Ldevices.devices){
+            if (device.type == "garage door"){
+                val intentGarage = Intent(this, RollingInterface::class.java)
+                intentGarage.putExtra("houseId", houseId)
+                intentGarage.putExtra("deviceId", device.id)
+                intentGarage.putExtra("availableCommands", device.availableCommands)
+                startActivity(intentGarage)
+            }
+        }
+    }
+
 
     override fun onResume() {
         super.onResume()

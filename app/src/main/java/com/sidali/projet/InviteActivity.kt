@@ -55,10 +55,11 @@ class InviteActivity : AppCompatActivity() {
 
     private fun getGuestSuccess(responseCode:Int,listGuests:ArrayList<GuestData>?){
         if (responseCode == 200 && listGuests != null){
+            isOwnerHouse(listGuests[0].userLogin)
             guests.clear()
             guests.addAll(listGuests)
             updateGuestsList()
-            isOwnerHouse(listGuests[0].userLogin)
+
         }
     }
 
@@ -69,13 +70,14 @@ class InviteActivity : AppCompatActivity() {
         println("user "+user)
         runOnUiThread{ // Modification sur thread principale
             if (owner != user) {
-                isOwner = false
+
                 if (textViewInvite.visibility == View.VISIBLE && layoutInvite.visibility == View.VISIBLE) {
                     textViewInvite.visibility = View.GONE
                     layoutInvite.visibility = View.GONE
                 }
             } else {
-                    isOwner = true
+
+
                     if (textViewInvite.visibility == View.GONE && layoutInvite.visibility == View.GONE) {
                         textViewInvite.visibility = View.VISIBLE
                         layoutInvite.visibility = View.VISIBLE
@@ -95,7 +97,10 @@ class InviteActivity : AppCompatActivity() {
 
     private fun initializeGuestsList(){
         val listV = findViewById<ListView>(R.id.listViewGuest)
-        listV.adapter = GuestAdapter(this,guests,isOwner){ userLogin ->
+        println("IS OWNER ?"+isOwner)
+        val sharedPreferences = getSharedPreferences("UserPrefs", MODE_PRIVATE)
+        val user = sharedPreferences.getString("login", "").toString()
+        listV.adapter = GuestAdapter(this,guests,user){ userLogin ->
             removeGuest(userLogin)
         }
     }
@@ -123,10 +128,7 @@ class InviteActivity : AppCompatActivity() {
     private fun removeGuest(userLogin:String){
         val houseId = intent.getStringExtra("houseId")
         val guest = UserData(userLogin)
-        println("addGuest")
-        println(houseId)
-        println(token)
-        println(houseId)
+
 
         Api().delete("https://polyhome.lesmoulinsdudev.com/api/houses/$houseId/users",guest,::removeGuestSuccess,token)
     }

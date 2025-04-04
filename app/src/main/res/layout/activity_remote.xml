@@ -5,6 +5,7 @@
     android:id="@+id/main"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:background="@drawable/background_gradient2"
     tools:context=".RemoteActivity">
 
     <com.google.android.material.appbar.MaterialToolbar
@@ -22,6 +23,55 @@
         app:titleTextColor="@android:color/white"
         tools:ignore="MissingConstraints" />
 
+    <LinearLayout
+        android:id="@+id/buttonContainer"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="5dp"
+        android:gravity="center"
+        android:orientation="horizontal"
+        android:visibility="gone"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/topAppBar">
+
+        <Button
+            android:id="@+id/btnAllLightOff"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_margin="4dp"
+            android:onClick="turnOffAllLights"
+            android:padding="10dp"
+            android:text="💡 OFF" />
+
+        <Button
+            android:id="@+id/btnOpenAllShutter"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_margin="4dp"
+            android:onClick="openAllShutters"
+            android:padding="10dp"
+            android:text="🔼 Ouvrir" />
+
+        <Button
+            android:id="@+id/btnCloseAllShutter"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_margin="4dp"
+            android:onClick="closeAllShutters"
+            android:padding="10dp"
+            android:text="🔽 Fermer" />
+
+        <Button
+            android:id="@+id/btnGarage"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_margin="4dp"
+            android:onClick="openGarageInterface"
+            android:padding="10dp"
+            android:text="🚗 Garage" />
+    </LinearLayout>
+
     <ListView
         android:id="@+id/listview2"
         android:layout_width="0dp"
@@ -31,7 +81,7 @@
         app:layout_constraintBottom_toTopOf="@+id/bottom_navigation"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/waitingMessage" />
+        app:layout_constraintTop_toBottomOf="@+id/buttonContainer" />
 
     <com.google.android.material.bottomnavigation.BottomNavigationView
         android:id="@+id/bottom_navigation"
@@ -46,8 +96,10 @@
         android:id="@+id/waitingMessage"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        android:layout_marginBottom="626dp"
         android:text="En attente de connexion à votre maison ..."
         android:visibility="visible"
+        app:layout_constraintBottom_toBottomOf="@+id/bottom_navigation"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/topAppBar" />

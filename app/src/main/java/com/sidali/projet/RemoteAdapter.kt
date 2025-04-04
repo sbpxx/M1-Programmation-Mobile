@@ -12,7 +12,7 @@ class RemoteAdapter(
     private var dataSource: ArrayList<DeviceData>,
     private var houseId: String,
     private var token: String,
-    private val onDeviceClick: (String, ArrayList<String>,String, Int?, Int?) -> Unit, // Ajout du callbackString) -> Unit // Ajout du callback
+    private val onDeviceClick: (String, ArrayList<String>,String, Int?, Float?) -> Unit, // Ajout du callbackString) -> Unit // Ajout du callback
 
 ): BaseAdapter(){
     private val inflater : LayoutInflater = context.getSystemService(Context.LAYOUT_INFLATER_SERVICE) as LayoutInflater
@@ -35,15 +35,13 @@ class RemoteAdapter(
         val view = inflater.inflate(R.layout.devices_layout,parent,false)
         val button = view.findViewById<Button>(R.id.button3)
         val device = getItem(position) as DeviceData
-        button.text= device.type
+        button.text= device.id
         button.setOnClickListener {
              println("test click btn "+device.type)
              println("test click btn "+device.availableCommands)
              println("test click btn power "+device.power)
              println("test click btn opening "+device.opening)
             onDeviceClick(device.id,device.availableCommands,device.type,device.power,device.opening)
-
-
         }
 
 
