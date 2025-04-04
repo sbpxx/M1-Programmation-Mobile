@@ -47,11 +47,16 @@ private val deleteCallback: (String) -> Unit
             deleteButton.visibility = View.GONE
             crown.visibility = View.VISIBLE
         }else{
-            if (guest.userLogin == user && position > 0) {
+            val guestOwner = getItem(0) as GuestData
+            println(guestOwner.userLogin+"ET")
+            println(guest)
+            if (guestOwner.userLogin == user && position > 0) {
                 deleteButton.visibility = View.VISIBLE
+            }else{
+                deleteButton.visibility = View.GONE
             }
-
             crown.visibility = View.GONE
+
             deleteButton.setOnClickListener {
                 deleteCallback(guest.userLogin)
             }
