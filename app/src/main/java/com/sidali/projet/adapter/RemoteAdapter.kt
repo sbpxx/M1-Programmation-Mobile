@@ -1,4 +1,4 @@
-package com.sidali.projet
+package com.sidali.projet.adapter
 
 import android.content.Context
 import android.view.LayoutInflater
@@ -7,7 +7,8 @@ import android.view.ViewGroup
 import android.widget.BaseAdapter
 import android.widget.Button
 import android.widget.ImageView
-import android.widget.TextView
+import com.sidali.projet.R
+import com.sidali.projet.dataClass.DeviceData
 
 class RemoteAdapter(
     private var context: Context,
@@ -36,7 +37,7 @@ class RemoteAdapter(
     override fun getView(position: Int, convertView: View?, parent: ViewGroup?): View {
         val device = getItem(position) as DeviceData
 
-        val view = inflater.inflate(R.layout.devices_layout,parent,false)
+        val view = inflater.inflate(R.layout.devices_adapter,parent,false)
         val button = view.findViewById<Button>(R.id.deviceButton)
         val deviceIcon = view.findViewById<ImageView>(R.id.deviceIcon)
         val openingPercentage : Float? = device.opening?.times(100)

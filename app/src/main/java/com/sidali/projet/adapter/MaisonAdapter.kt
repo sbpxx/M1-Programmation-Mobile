@@ -1,4 +1,4 @@
-package com.sidali.projet
+package com.sidali.projet.adapter
 
 import android.content.Context
 import android.view.LayoutInflater
@@ -8,10 +8,13 @@ import android.widget.BaseAdapter
 import android.widget.ImageView
 import android.widget.TextView
 import com.example.androidtp2.Api
+import com.sidali.projet.R
+import com.sidali.projet.dataClass.GuestData
+import com.sidali.projet.dataClass.HouseData
 
 class MaisonAdapter(
     private var context : Context,
-    private var dataSource : ArrayList<MaisonData>,
+    private var dataSource : ArrayList<HouseData>,
     private var token : String
 ): BaseAdapter(){
     private val inflater : LayoutInflater = context.getSystemService(Context.LAYOUT_INFLATER_SERVICE) as LayoutInflater
@@ -29,10 +32,10 @@ class MaisonAdapter(
     }
 
     override fun getView(position: Int, convertView: View?, parent: ViewGroup?): View {
-        val view = inflater.inflate(R.layout.maison_layout,parent,false)
+        val view = inflater.inflate(R.layout.houses_adapter,parent,false)
         val maisonTxt = view.findViewById<TextView>(R.id.textView)
         val crown = view.findViewById<ImageView>(R.id.ic_maisonCrown)
-        val maison = getItem(position) as MaisonData
+        val maison = getItem(position) as HouseData
 
 
 

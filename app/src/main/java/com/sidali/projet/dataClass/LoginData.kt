@@ -1,4 +1,4 @@
-package com.sidali.projet
+package com.sidali.projet.dataClass
 
 data class LoginData (
     val login: String,

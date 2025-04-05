@@ -1,4 +1,4 @@
-package com.sidali.projet
+package com.sidali.projet.activity
 
 import android.os.Bundle
 import android.view.View
@@ -9,9 +9,15 @@ import android.widget.ListView
 import android.widget.TextView
 import androidx.activity.enableEdgeToEdge
 import androidx.appcompat.app.AppCompatActivity
-import androidx.core.view.ViewCompat
-import androidx.core.view.WindowInsetsCompat
 import com.example.androidtp2.Api
+import com.sidali.projet.adapter.GuestAdapter
+import com.sidali.projet.R
+import com.sidali.projet.dataClass.GuestData
+import com.sidali.projet.dataClass.UserData
+import com.sidali.projet.utils.getToken
+import com.sidali.projet.utils.setupBottomNavUtils
+import com.sidali.projet.utils.setupTopNavUtils
+import com.sidali.projet.utils.updateSelectedNavItem
 
 class InviteActivity : AppCompatActivity() {
 

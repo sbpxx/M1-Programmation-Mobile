@@ -1,6 +1,4 @@
-package com.sidali.projet
-
-import androidx.activity.contextaware.OnContextAvailableListener
+package com.sidali.projet.dataClass
 
 data class DeviceData(
 val id:String,

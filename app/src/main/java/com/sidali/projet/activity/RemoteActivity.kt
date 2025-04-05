@@ -1,23 +1,26 @@
-package com.sidali.projet
+package com.sidali.projet.activity
 
 import android.content.Intent
 import android.os.Bundle
 import android.view.View
-import android.widget.Button
 import android.widget.ListView
 import android.widget.TextView
 import androidx.activity.enableEdgeToEdge
 import androidx.appcompat.app.AppCompatActivity
-import androidx.core.view.ViewCompat
-import androidx.core.view.WindowInsetsCompat
 import androidx.lifecycle.lifecycleScope
 import com.example.androidtp2.Api
+import com.sidali.projet.R
+import com.sidali.projet.adapter.RemoteAdapter
+import com.sidali.projet.dataClass.CommandData
+import com.sidali.projet.dataClass.DevicesListData
+import com.sidali.projet.utils.getToken
+import com.sidali.projet.utils.setupBottomNavUtils
+import com.sidali.projet.utils.setupTopNavUtils
+import com.sidali.projet.utils.updateSelectedNavItem
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.isActive
 import kotlinx.coroutines.launch
-import java.util.Timer
-import kotlin.concurrent.schedule
 
 class RemoteActivity : AppCompatActivity() {
     private lateinit var token: String
@@ -123,7 +126,7 @@ class RemoteActivity : AppCompatActivity() {
                 selectedCommand = availableCommands[1]
                 sendCommandToDevice(deviceId, selectedCommand, power, opening)
         }else if (type == "rolling shutter" || type == "garage door"){
-                val intentRinterface= Intent(this,RollingInterface::class.java)
+                val intentRinterface= Intent(this, RollingGarageActivity::class.java)
 
                 intentRinterface.putExtra("houseId",houseId)
                 intentRinterface.putExtra("deviceId",deviceId)
@@ -138,8 +141,8 @@ class RemoteActivity : AppCompatActivity() {
     }
 
     private fun sendCommandToDevice(deviceId: String, command: String, power :Int?, opening :Float?) {
-        val deviceCommand = DeviceCommand(command)
-        Api().post("https://polyhome.lesmoulinsdudev.com/api/houses/$houseId/devices/$deviceId/command",deviceCommand,::onCommandSuccess,token)
+        val commandData = CommandData(command)
+        Api().post("https://polyhome.lesmoulinsdudev.com/api/houses/$houseId/devices/$deviceId/command",commandData,::onCommandSuccess,token)
 
     }
 
@@ -180,7 +183,7 @@ class RemoteActivity : AppCompatActivity() {
     public fun openGarageInterface(view: View){
         for (device in Ldevices.devices){
             if (device.type == "garage door"){
-                val intentGarage = Intent(this, RollingInterface::class.java)
+                val intentGarage = Intent(this, RollingGarageActivity::class.java)
                 intentGarage.putExtra("houseId", houseId)
                 intentGarage.putExtra("deviceId", device.id)
                 intentGarage.putExtra("availableCommands", device.availableCommands)

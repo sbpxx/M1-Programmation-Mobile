@@ -1,7 +1,6 @@
-package com.sidali.projet
+package com.sidali.projet.adapter
 
 import android.content.Context
-import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -9,16 +8,14 @@ import android.widget.BaseAdapter
 import android.widget.Button
 import android.widget.ImageView
 import android.widget.TextView
-import androidx.activity.enableEdgeToEdge
-import androidx.appcompat.app.AppCompatActivity
-import androidx.core.view.ViewCompat
-import androidx.core.view.WindowInsetsCompat
+import com.sidali.projet.R
+import com.sidali.projet.dataClass.GuestData
 
 class GuestAdapter(
-private var context : Context,
-private var dataSource : ArrayList<GuestData>,
-private var user : String,
-private val deleteCallback: (String) -> Unit
+    private var context : Context,
+    private var dataSource : ArrayList<GuestData>,
+    private var user : String,
+    private val deleteCallback: (String) -> Unit
 ): BaseAdapter(){
     private val inflater : LayoutInflater = context.getSystemService(Context.LAYOUT_INFLATER_SERVICE) as LayoutInflater
 
@@ -36,7 +33,7 @@ private val deleteCallback: (String) -> Unit
 
     override fun getView(position: Int, convertView: View?, parent: ViewGroup?): View {
 
-        val view = inflater.inflate(R.layout.activity_guest_adapter,parent,false)
+        val view = inflater.inflate(R.layout.guests_adapter,parent,false)
         val crown = view.findViewById<ImageView>(R.id.ic_crown)
         val deleteButton = view.findViewById<Button>(R.id.deleteButton)
         val guestNameTxt = view.findViewById<TextView>(R.id.textView9)

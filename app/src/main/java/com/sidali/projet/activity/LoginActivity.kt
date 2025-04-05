@@ -1,4 +1,4 @@
-package com.sidali.projet
+package com.sidali.projet.activity
 
 import android.content.Context
 import android.content.Intent
@@ -9,6 +9,9 @@ import android.widget.EditText
 import androidx.activity.enableEdgeToEdge
 import androidx.appcompat.app.AppCompatActivity
 import com.example.androidtp2.Api
+import com.sidali.projet.R
+import com.sidali.projet.dataClass.LoginData
+import com.sidali.projet.dataClass.TokenData
 
 class LoginActivity : AppCompatActivity() {
     private lateinit var login: EditText
@@ -39,7 +42,7 @@ class LoginActivity : AppCompatActivity() {
 
             val LogInfo : LoginData = LoginData(log,pass)
 
-            Api().post<LoginData,TokenData?>("https://polyhome.lesmoulinsdudev.com/api/users/auth",LogInfo,::loginSuccess)
+            Api().post<LoginData, TokenData?>("https://polyhome.lesmoulinsdudev.com/api/users/auth",LogInfo,::loginSuccess)
         }
 
         private fun loginSuccess(responseCode: Int,token: TokenData?){
@@ -48,7 +51,7 @@ class LoginActivity : AppCompatActivity() {
 
                     saveUserInfo(token.token)
 
-                    val intentMenu = Intent(this, MenuActivity::class.java)
+                    val intentMenu = Intent(this, HousesActivity::class.java)
                     startActivity(intentMenu)
                     finish()
                 }

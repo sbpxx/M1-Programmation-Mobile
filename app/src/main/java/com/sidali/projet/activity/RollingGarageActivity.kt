@@ -1,4 +1,4 @@
-package com.sidali.projet
+package com.sidali.projet.activity
 
 import android.os.Bundle
 import android.view.View
@@ -7,17 +7,22 @@ import androidx.activity.enableEdgeToEdge
 import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.lifecycleScope
 import com.example.androidtp2.Api
+import com.sidali.projet.R
+import com.sidali.projet.dataClass.CommandData
+import com.sidali.projet.dataClass.DeviceData
+import com.sidali.projet.dataClass.DevicesListData
+import com.sidali.projet.utils.getToken
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.isActive
 import kotlinx.coroutines.launch
 
-class RollingInterface : AppCompatActivity() {
+class RollingGarageActivity : AppCompatActivity() {
     lateinit var houseId: String
     lateinit var deviceId: String
     lateinit var token: String
     lateinit var availableCommands: ArrayList<String>
-    lateinit var deviceCommand: DeviceCommand
+    lateinit var commandData: CommandData
 
     private lateinit var titleRolling: TextView
     private lateinit var txtPercentage: TextView
@@ -28,7 +33,7 @@ class RollingInterface : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
-        setContentView(R.layout.activity_rolling_interface)
+        setContentView(R.layout.activity_rolling_garage)
 
         token = getToken()
 
@@ -60,21 +65,21 @@ class RollingInterface : AppCompatActivity() {
     }
 
     fun monter(view: View) {
-        deviceCommand = DeviceCommand(availableCommands[0])
-        Api().post("https://polyhome.lesmoulinsdudev.com/api/houses/$houseId/devices/$deviceId/command", deviceCommand, ::onCommandSuccess, token)
+        commandData = CommandData(availableCommands[0])
+        Api().post("https://polyhome.lesmoulinsdudev.com/api/houses/$houseId/devices/$deviceId/command", commandData, ::onCommandSuccess, token)
         onRefreshingPercentage()
     }
 
     fun stop(view: View) {
-        deviceCommand = DeviceCommand(availableCommands[2])
-        Api().post("https://polyhome.lesmoulinsdudev.com/api/houses/$houseId/devices/$deviceId/command", deviceCommand, ::onCommandSuccess, token)
+        commandData = CommandData(availableCommands[2])
+        Api().post("https://polyhome.lesmoulinsdudev.com/api/houses/$houseId/devices/$deviceId/command", commandData, ::onCommandSuccess, token)
 
         refreshPercentage()
     }
 
     fun descendre(view: View) {
-        deviceCommand = DeviceCommand(availableCommands[1])
-        Api().post("https://polyhome.lesmoulinsdudev.com/api/houses/$houseId/devices/$deviceId/command", deviceCommand, ::onCommandSuccess, token)
+        commandData = CommandData(availableCommands[1])
+        Api().post("https://polyhome.lesmoulinsdudev.com/api/houses/$houseId/devices/$deviceId/command", commandData, ::onCommandSuccess, token)
         onRefreshingPercentage()
     }
 

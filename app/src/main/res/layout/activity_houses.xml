@@ -6,7 +6,7 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:background="@drawable/background_gradient2"
-    tools:context=".MenuActivity">
+    tools:context=".activity.HousesActivity">
 
     <ListView
         android:id="@+id/ListView"
