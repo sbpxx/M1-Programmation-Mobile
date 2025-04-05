@@ -18,6 +18,9 @@ import com.example.androidtp2.Api
 class MenuActivity : AppCompatActivity() {
 
     private lateinit var token : String
+    private val maisons : ArrayList<MaisonData> = ArrayList()
+    private var firstLaunch : Boolean = true
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
@@ -26,14 +29,12 @@ class MenuActivity : AppCompatActivity() {
         token = getToken()
         loadMaisons()
         initializeMaisonsList()
+
+
         findViewById<ListView>(R.id.ListView).setOnItemClickListener(::onItemClicked)
         setupTopNavUtils(null, token)
-
     }
 
-
-
-    private val maisons : ArrayList<MaisonData> = ArrayList()
 
     private fun loadMaisons(){
         Api().get<ArrayList<MaisonData>>("https://polyhome.lesmoulinsdudev.com/api/houses",::getMaisonSuccess,token)
@@ -44,14 +45,22 @@ class MenuActivity : AppCompatActivity() {
             maisons.clear()
             maisons.addAll(listMaisons)
             updateMaisonsList()
+
+            val prefs = getSharedPreferences("UserPrefs", MODE_PRIVATE)
+            val autoLoadHome = prefs.getBoolean("loadHome", false)
+
+            if (autoLoadHome && maisons.isNotEmpty() && firstLaunch) {
+                firstLaunch = false
+                openHouse(maisons[0].houseId.toString())
+            }
         }
     }
 
     private fun updateMaisonsList(){
         val listV = findViewById<ListView>(R.id.ListView)
-    runOnUiThread{
-        (listV.adapter as MaisonAdapter).notifyDataSetChanged()
-    }
+        runOnUiThread{
+            (listV.adapter as MaisonAdapter).notifyDataSetChanged()
+        }
     }
 
     private fun initializeMaisonsList(){
@@ -60,14 +69,15 @@ class MenuActivity : AppCompatActivity() {
     }
 
 
+    private fun openHouse(houseId:String){
+        val intentRemote = Intent(this, RemoteActivity::class.java)
+        intentRemote.putExtra("houseId", houseId)
+        startActivity(intentRemote)
+    }
 
     fun onItemClicked(parent: AdapterView<*>, view: View, position:Int, id:Long) {
         val clickedItem = parent.getItemAtPosition(position) as MaisonData
-
-        println("Item cliqué : "+clickedItem.houseId)
-        val intentRemote = Intent(this,RemoteActivity::class.java)
-        intentRemote.putExtra("houseId",clickedItem.houseId.toString())
-        startActivity(intentRemote)
+        openHouse(clickedItem.houseId.toString())
     }
 
     override fun onResume() {

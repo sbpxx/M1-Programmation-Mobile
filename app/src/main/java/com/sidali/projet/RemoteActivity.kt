@@ -39,6 +39,8 @@ class RemoteActivity : AppCompatActivity() {
         setupBottomNavUtils(intent.getStringExtra("houseId").toString(),token)
         setupTopNavUtils(intent.getStringExtra("houseId").toString(),token)
 
+
+
     }
 
 
@@ -54,27 +56,28 @@ class RemoteActivity : AppCompatActivity() {
     }
 
     private fun RemoteListSuccess(responseCode: Int, listDevices: DevicesListData?) {
-
         runOnUiThread {
             val btnContainer = findViewById<View>(R.id.buttonContainer)
-            waitMsg.text = "En attente de connexion à votre maison ... ( Maison : $houseId )"
+            waitMsg.text = "En attente de connexion à votre maison ... (Maison : $houseId)"
+
+            val prefs = getSharedPreferences("UserPrefs", MODE_PRIVATE)
+            val displayUsefulButtons = prefs.getBoolean("usefulButtons", true)
 
             if (responseCode == 200 && listDevices != null) {
-                if (waitMsg.visibility == View.VISIBLE) {
-                    waitMsg.visibility = View.GONE
-                    btnContainer.visibility = View.VISIBLE
-                }
+                waitMsg.visibility = View.GONE
                 println(Ldevices)
                 Ldevices.devices.clear()
                 Ldevices.devices.addAll(listDevices.devices)
                 updateDevicesList()
+
+
+                btnContainer.visibility = if (displayUsefulButtons) View.VISIBLE else View.GONE
+
                 refreshJob?.cancel()
             } else {
-                if (waitMsg.visibility == View.GONE) {
-                    btnContainer.visibility = View.GONE
-                    waitMsg.visibility = View.VISIBLE
-                }
-                println("AAAAAAAAAAAA" + responseCode)
+                waitMsg.visibility = View.VISIBLE
+                btnContainer.visibility = View.GONE
+                println("Erreur API : $responseCode")
                 waitReloader()
             }
         }
@@ -186,10 +189,22 @@ class RemoteActivity : AppCompatActivity() {
         }
     }
 
+    private fun refreshUsefulButtonsVisibility() {
+        val prefs = getSharedPreferences("UserPrefs", MODE_PRIVATE)
+        val displayUsefulButtons = prefs.getBoolean("usefulButtons", true)
+
+        val btnContainer = findViewById<View>(R.id.buttonContainer)
+        btnContainer.visibility = if (displayUsefulButtons) View.VISIBLE else View.GONE
+    }
+
 
     override fun onResume() {
         super.onResume()
         updateSelectedNavItem(findViewById(R.id.bottom_navigation))
+        loadDevices()
+        if (waitMsg.visibility == View.GONE){
+            refreshUsefulButtonsVisibility()
+        }
     }
 
     override fun onDestroy() {

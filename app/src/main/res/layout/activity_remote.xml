@@ -12,7 +12,7 @@
         android:id="@+id/topAppBar"
         android:layout_width="match_parent"
         android:layout_height="0dp"
-        android:background="?attr/colorPrimary"
+        android:background="#6454C3"
         android:paddingTop="30dp"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
@@ -42,7 +42,8 @@
             android:layout_margin="4dp"
             android:onClick="turnOffAllLights"
             android:padding="10dp"
-            android:text="💡 OFF" />
+            android:text="💡 OFF"
+            android:textSize="12sp" />
 
         <Button
             android:id="@+id/btnOpenAllShutter"
@@ -51,7 +52,8 @@
             android:layout_margin="4dp"
             android:onClick="openAllShutters"
             android:padding="10dp"
-            android:text="🔼 Ouvrir" />
+            android:text="🔼 Ouvrir"
+            android:textSize="12sp" />
 
         <Button
             android:id="@+id/btnCloseAllShutter"
@@ -60,7 +62,8 @@
             android:layout_margin="4dp"
             android:onClick="closeAllShutters"
             android:padding="10dp"
-            android:text="🔽 Fermer" />
+            android:text="🔽 Fermer"
+            android:textSize="12sp" />
 
         <Button
             android:id="@+id/btnGarage"
@@ -69,7 +72,8 @@
             android:layout_margin="4dp"
             android:onClick="openGarageInterface"
             android:padding="10dp"
-            android:text="🚗 Garage" />
+            android:text="🚗 Garage"
+            android:textSize="12sp" />
     </LinearLayout>
 
     <ListView
@@ -78,10 +82,14 @@
         android:layout_height="0dp"
         android:layout_marginStart="1dp"
         android:layout_marginEnd="1dp"
+        android:background="#5C3DC5"
+        android:backgroundTint="#00FFFFFF"
         app:layout_constraintBottom_toTopOf="@+id/bottom_navigation"
         app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="1.0"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/buttonContainer" />
+        app:layout_constraintTop_toBottomOf="@+id/buttonContainer"
+        app:layout_constraintVertical_bias="0.0" />
 
     <com.google.android.material.bottomnavigation.BottomNavigationView
         android:id="@+id/bottom_navigation"

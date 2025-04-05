@@ -3,6 +3,7 @@ package com.sidali.projet
 import android.content.Intent
 import android.os.Bundle
 import android.view.View
+import android.widget.CheckBox
 import androidx.activity.enableEdgeToEdge
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.ViewCompat
@@ -13,12 +14,30 @@ class SettingsActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
         setContentView(R.layout.activity_settings)
-        ViewCompat.setOnApplyWindowInsetsListener(findViewById(R.id.main)) { v, insets ->
-            val systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars())
-            v.setPadding(systemBars.left, systemBars.top, systemBars.right, systemBars.bottom)
-            insets
+
+
+
+            val prefs = getSharedPreferences("UserPrefs", MODE_PRIVATE)
+
+            val checkLoadHome = findViewById<CheckBox>(R.id.checkLoadHome)
+            val checkUsefulButtons = findViewById<CheckBox>(R.id.checkUsefulButtons)
+
+
+            checkLoadHome.isChecked = prefs.getBoolean("loadHome", false)
+            checkUsefulButtons.isChecked = prefs.getBoolean("usefulButtons", true)
+
+            checkLoadHome.setOnCheckedChangeListener { buttonView, isChecked ->
+                prefs.edit().putBoolean("loadHome", isChecked).apply()
+            }
+
+            checkUsefulButtons.setOnCheckedChangeListener { buttonView, isChecked ->
+                prefs.edit().putBoolean("usefulButtons", isChecked).apply()
+            }
+
+
         }
-    }
+
+
 
     public fun Disconnect(view: View){
         val intentLogin = Intent(this,FirstActivity::class.java)
