@@ -143,12 +143,6 @@ class HousesActivity : AppCompatActivity() {
     override fun onResume() {
         super.onResume()
          loadMaisons()
-        /*
-        normalement je devrait laisser loadMaisons
-        mais si l'utilisateur reviens trop vite sur cet intent les nombreuses requêtes API
-        risquent de faire crash l'intent.
-        ceci dit dans le cas d'une utilisation normale, ça ne crash pas si je laisse loadMaisons.
-         */
         skipFirstLaunch = true
     }
 
