@@ -18,30 +18,26 @@ class MainActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
         setContentView(R.layout.activity_main)
-        ViewCompat.setOnApplyWindowInsetsListener(findViewById(R.id.mainAF)) { v, insets ->
-            val systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars())
-            v.setPadding(systemBars.left, systemBars.top, systemBars.right, systemBars.bottom)
-            insets
-        }
-         intentLogin = Intent(this, LoginActivity::class.java)
-         intentRegister = Intent(this, RegisterActivity::class.java)
+
+        intentLogin = Intent(this, LoginActivity::class.java)
+        intentRegister = Intent(this, RegisterActivity::class.java)
+
         isAutoConnexion()
     }
 
-    public fun loginButton(view: View){
+    fun loginButton(view: View) {
         startActivity(intentLogin)
         finish()
     }
 
-    public fun registerButton(view: View){
+    fun registerButton(view: View) {
         startActivity(intentRegister)
         finish()
     }
 
-    private fun isAutoConnexion(){
-
-        val sharedPreferences = getSharedPreferences("UserPrefs", MODE_PRIVATE)
-        val stayConnected = sharedPreferences.getBoolean("stayConnected", false)
+    private fun isAutoConnexion() {
+        val prefs = getSharedPreferences("UserPrefs", MODE_PRIVATE)
+        val stayConnected = prefs.getBoolean("stayConnected", false)
 
         if (stayConnected) {
             startActivity(intentLogin)

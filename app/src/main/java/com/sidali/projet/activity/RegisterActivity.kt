@@ -9,33 +9,37 @@ import androidx.appcompat.app.AppCompatActivity
 import com.example.androidtp2.Api
 import com.sidali.projet.R
 import com.sidali.projet.dataClass.LoginData
+import com.sidali.projet.utils.showApiErrorToast
 
 class RegisterActivity : AppCompatActivity() {
+
+    private val registerUrl = "https://polyhome.lesmoulinsdudev.com/api/users/register"
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        setContentView(R.layout.activity_register)
         enableEdgeToEdge()
+        setContentView(R.layout.activity_register)
     }
 
-    public fun loginAccount(view: View)
-    {
-        val intent = Intent(this, LoginActivity::class.java);
+    fun loginAccount(view: View) {
+        val intent = Intent(this, LoginActivity::class.java)
         startActivity(intent)
         finish()
     }
 
-    public fun register(view:View){
+    fun register(view: View) {
         val login = findViewById<EditText>(R.id.txtRegLogin)
         val password = findViewById<EditText>(R.id.txtRegPassword)
 
-        val reg : LoginData = LoginData(login.text.toString(),password.text.toString())
-
-        Api().post<LoginData>("https://polyhome.lesmoulinsdudev.com/api/users/register",reg,::registerSuccess)
+        val reg = LoginData(login.text.toString(), password.text.toString())
+        Api().post(registerUrl, reg, ::registerSuccess)
     }
 
-    private fun registerSuccess(responseCode: Int){
-        if (responseCode == 200){
+    private fun registerSuccess(responseCode: Int) {
+        if (responseCode == 200) {
             finish()
+        } else {
+            showApiErrorToast(responseCode)
         }
     }
 }

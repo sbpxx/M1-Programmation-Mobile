@@ -12,79 +12,80 @@ import com.example.androidtp2.Api
 import com.sidali.projet.R
 import com.sidali.projet.dataClass.LoginData
 import com.sidali.projet.dataClass.TokenData
+import com.sidali.projet.utils.showApiErrorToast
 
 class LoginActivity : AppCompatActivity() {
+
     private lateinit var login: EditText
     private lateinit var password: EditText
     private lateinit var stayConnectedCheck: CheckBox
+
+    private val loginUrl = "https://polyhome.lesmoulinsdudev.com/api/users/auth"
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
         setContentView(R.layout.activity_login)
 
-        login = findViewById<EditText>(R.id.txtLogin)
-        password = findViewById<EditText>(R.id.txtPassword)
-        stayConnectedCheck = findViewById<CheckBox>(R.id.checkBox)
+        login = findViewById(R.id.txtLogin)
+        password = findViewById(R.id.txtPassword)
+        stayConnectedCheck = findViewById(R.id.checkBox)
 
         loadUserInfo()
     }
 
-        public fun registerNewAccount(view: View)
-        {
-            val intent = Intent(this, RegisterActivity::class.java);
-            startActivity(intent)
+    fun registerNewAccount(view: View) {
+        val intent = Intent(this, RegisterActivity::class.java)
+        startActivity(intent)
+        finish()
+    }
+
+    fun login(view: View) {
+        val log = login.text.toString()
+        val pass = password.text.toString()
+        val logInfo = LoginData(log, pass)
+
+        Api().post<LoginData, TokenData?>(loginUrl, logInfo, ::loginSuccess)
+    }
+
+    private fun loginSuccess(responseCode: Int, token: TokenData?) {
+        if (responseCode == 200 && token != null) {
+            saveUserInfo(token.token)
+            val intentMenu = Intent(this, HousesActivity::class.java)
+            startActivity(intentMenu)
             finish()
+        } else {
+            showApiErrorToast(responseCode)
+        }
+    }
+
+    private fun saveUserInfo(token: String) {
+        val prefs = getSharedPreferences("UserPrefs", MODE_PRIVATE)
+        val editor = prefs.edit()
+
+        editor.putString("login", login.text.toString())
+        editor.putString("token", token)
+
+        if (stayConnectedCheck.isChecked) {
+            editor.putString("password", password.text.toString())
+            editor.putBoolean("stayConnected", true)
+        } else {
+            editor.remove("password")
+            editor.putBoolean("stayConnected", false)
         }
 
-        public fun login(view:View){
-             val log = login.text.toString()
-             val pass = password.text.toString()
+        editor.apply()
+    }
 
-            val LogInfo : LoginData = LoginData(log,pass)
+    private fun loadUserInfo() {
+        val prefs = getSharedPreferences("UserPrefs", Context.MODE_PRIVATE)
+        val stayConnected = prefs.getBoolean("stayConnected", false)
 
-            Api().post<LoginData, TokenData?>("https://polyhome.lesmoulinsdudev.com/api/users/auth",LogInfo,::loginSuccess)
+        if (stayConnected) {
+            login.setText(prefs.getString("login", ""))
+            password.setText(prefs.getString("password", ""))
+            stayConnectedCheck.isChecked = true
+            login(View(this))
         }
-
-        private fun loginSuccess(responseCode: Int,token: TokenData?){
-            if (responseCode == 200) {
-                if (token != null) {
-
-                    saveUserInfo(token.token)
-
-                    val intentMenu = Intent(this, HousesActivity::class.java)
-                    startActivity(intentMenu)
-                    finish()
-                }
-            }
-        }
-
-        private fun saveUserInfo(token : String) {
-            val sharedPreferences = getSharedPreferences("UserPrefs", MODE_PRIVATE)
-            val editor = sharedPreferences.edit()
-            editor.putString("login", login.text.toString())
-            editor.putString("token", token)
-            if (stayConnectedCheck.isChecked) {
-                editor.putString("password", password.text.toString())
-                editor.putBoolean("stayConnected", true)
-            }else{
-                editor.remove("password")
-                editor.putBoolean("stayConnected", false)
-            }
-            editor.apply()
-        }
-
-        private fun loadUserInfo() {
-            val sharedPreferences = getSharedPreferences("UserPrefs", Context.MODE_PRIVATE)
-            val stayConnected = sharedPreferences.getBoolean("stayConnected", false)
-
-            if (stayConnected) {
-                login.setText(sharedPreferences.getString("login", ""))
-                password.setText(sharedPreferences.getString("password", ""))
-                stayConnectedCheck.isChecked = true
-                login(View(this))
-            }
-        }
-
+    }
 }
-
-

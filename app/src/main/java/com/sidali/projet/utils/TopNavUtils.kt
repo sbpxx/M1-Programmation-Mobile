@@ -6,7 +6,7 @@ import com.google.android.material.appbar.MaterialToolbar
 import com.sidali.projet.R
 import com.sidali.projet.activity.SettingsActivity
 
-// Fonction pour setup la barre de navigation supérieure
+// Fonction pour configurer la barre de navigation supérieure
 fun Activity.setupTopNavUtils(houseId: String?, token: String) {
     val topAppBar = findViewById<MaterialToolbar>(R.id.topAppBar)
     topAppBar.setOnMenuItemClickListener { menuItem ->
@@ -20,6 +20,7 @@ private fun Activity.handleTopAppBarItemClick(itemId: Int, houseId: String?, tok
         R.id.action_back -> {
             finish()
         }
+
         R.id.action_settings -> {
             launchActivity(SettingsActivity::class.java, houseId, token)
         }

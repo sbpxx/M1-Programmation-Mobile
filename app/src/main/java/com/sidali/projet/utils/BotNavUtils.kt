@@ -2,27 +2,22 @@ package com.sidali.projet.utils
 
 import android.app.Activity
 import android.content.Intent
-import com.google.android.material.appbar.MaterialToolbar
 import com.google.android.material.bottomnavigation.BottomNavigationView
 import com.sidali.projet.R
 import com.sidali.projet.activity.InviteActivity
 import com.sidali.projet.activity.HousesActivity
 import com.sidali.projet.activity.RemoteActivity
-import com.sidali.projet.activity.SettingsActivity
 
-
-
-
-// Fonction pour setup la barre de navigation inférieure
+// Fonction pour configurer la barre de navigation inférieure
 fun Activity.setupBottomNavUtils(houseId: String, token: String) {
     val bottomNav = findViewById<BottomNavigationView>(R.id.bottom_navigation)
     bottomNav.itemIconTintList = null
 
     bottomNav.setOnItemSelectedListener { menuItem ->
-
         handleBottomNavItemClick(menuItem.itemId, houseId, token)
         true
     }
+
     updateSelectedNavItem(bottomNav)
 }
 
@@ -48,22 +43,19 @@ private fun Activity.handleBottomNavItemClick(selectedItemId: Int, houseId: Stri
     }
 }
 
-
-
 private fun Activity.isCurrentActivity(activityClass: Class<*>): Boolean {
     return this::class.java.simpleName == activityClass.simpleName
 }
 
 private fun Activity.launchActivity(activityClass: Class<*>, houseId: String?, token: String) {
     val intent = Intent(this, activityClass).apply {
-        flags = Intent.FLAG_ACTIVITY_REORDER_TO_FRONT
+        flags = Intent.FLAG_ACTIVITY_CLEAR_TOP or Intent.FLAG_ACTIVITY_NEW_TASK
     }
     intent.putExtra("houseId", houseId)
     startActivity(intent)
 }
 
 fun Activity.updateSelectedNavItem(bottomNav: BottomNavigationView) {
-
     bottomNav.selectedItemId = when (this) {
         is HousesActivity -> R.id.navigation_home
         is RemoteActivity -> R.id.navigation_devices

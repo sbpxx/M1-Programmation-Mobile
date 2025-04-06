@@ -2,7 +2,6 @@ package com.sidali.projet.activity
 
 import android.os.Bundle
 import android.view.View
-import android.widget.ArrayAdapter
 import android.widget.EditText
 import android.widget.LinearLayout
 import android.widget.ListView
@@ -18,132 +17,105 @@ import com.sidali.projet.utils.getToken
 import com.sidali.projet.utils.setupBottomNavUtils
 import com.sidali.projet.utils.setupTopNavUtils
 import com.sidali.projet.utils.updateSelectedNavItem
+import com.sidali.projet.utils.showApiErrorToast
 
 class InviteActivity : AppCompatActivity() {
 
-    lateinit var guestsAdapter : ArrayAdapter<GuestData>
-    lateinit var token : String
-    lateinit var textViewInvite : TextView
-    lateinit var layoutInvite : LinearLayout
-    var isOwner : Boolean = false
+    private lateinit var token: String
+    private lateinit var textViewInvite: TextView
+    private lateinit var layoutInvite: LinearLayout
+    private lateinit var houseId: String
+    private lateinit var currentUserLogin: String
+    private lateinit var guestsUrl: String
+    private lateinit var editTextInviteName: EditText
+    private lateinit var listViewGuest: ListView
+
+    private val guests: ArrayList<GuestData> = ArrayList()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
         setContentView(R.layout.activity_invite)
 
-
-
         token = getToken()
+        houseId = intent.getStringExtra("houseId").toString()
+        currentUserLogin = getSharedPreferences("UserPrefs", MODE_PRIVATE)
+            .getString("login", "").toString()
+        guestsUrl = "https://polyhome.lesmoulinsdudev.com/api/houses/$houseId/users"
 
         textViewInvite = findViewById(R.id.textViewInvitation)
         layoutInvite = findViewById(R.id.linearLayoutInvite)
+        editTextInviteName = findViewById(R.id.editTextInviteName)
+        listViewGuest = findViewById(R.id.listViewGuest)
 
         loadGuests()
         initializeGuestsList()
-        setupBottomNavUtils(intent.getStringExtra("houseId").toString(), token)
-        setupTopNavUtils(intent.getStringExtra("houseId").toString(), token)
 
-
-
+        setupBottomNavUtils(houseId, token)
+        setupTopNavUtils(houseId, token)
     }
 
-    private val guests : ArrayList<GuestData> = ArrayList()
-
-
-
-
-
-    private fun loadGuests(){
-        val houseId = intent.getStringExtra("houseId")
-        Api().get<ArrayList<GuestData>>("https://polyhome.lesmoulinsdudev.com/api/houses/$houseId/users",::getGuestSuccess,token)
+    private fun loadGuests() {
+        Api().get<ArrayList<GuestData>>(guestsUrl, ::getGuestSuccess, token)
     }
 
-    private fun getGuestSuccess(responseCode:Int,listGuests:ArrayList<GuestData>?){
-        if (responseCode == 200 && listGuests != null){
+
+
+    private fun getGuestSuccess(responseCode: Int, listGuests: ArrayList<GuestData>?) {
+        if (responseCode == 200 && listGuests != null) {
             isOwnerHouse(listGuests[0].userLogin)
             guests.clear()
             guests.addAll(listGuests)
             updateGuestsList()
-
+        }else{
+            showApiErrorToast(responseCode)
         }
     }
 
-    private fun isOwnerHouse(owner : String){
-        val sharedPreferences = getSharedPreferences("UserPrefs", MODE_PRIVATE)
-        val user = sharedPreferences.getString("login", "").toString()
-        println("owner "+owner)
-        println("user "+user)
-        runOnUiThread{ // Modification sur thread principale
-            if (owner != user) {
-
-                if (textViewInvite.visibility == View.VISIBLE && layoutInvite.visibility == View.VISIBLE) {
-                    textViewInvite.visibility = View.GONE
-                    layoutInvite.visibility = View.GONE
-                }
-            } else {
-
-
-                    if (textViewInvite.visibility == View.GONE && layoutInvite.visibility == View.GONE) {
-                        textViewInvite.visibility = View.VISIBLE
-                        layoutInvite.visibility = View.VISIBLE
-                    }
-                }
+    private fun isOwnerHouse(owner: String) {
+        runOnUiThread {
+            val isOwner = owner == currentUserLogin
+            textViewInvite.visibility = if (isOwner) View.VISIBLE else View.GONE
+            layoutInvite.visibility = if (isOwner) View.VISIBLE else View.GONE
         }
     }
 
-
-
-    private fun updateGuestsList(){
-        val listV = findViewById<ListView>(R.id.listViewGuest)
-        runOnUiThread{
-            (listV.adapter as GuestAdapter).notifyDataSetChanged()
+    private fun updateGuestsList() {
+        runOnUiThread {
+            (listViewGuest.adapter as GuestAdapter).notifyDataSetChanged()
         }
     }
 
-    private fun initializeGuestsList(){
-        val listV = findViewById<ListView>(R.id.listViewGuest)
-        println("IS OWNER ?"+isOwner)
-        val sharedPreferences = getSharedPreferences("UserPrefs", MODE_PRIVATE)
-        val user = sharedPreferences.getString("login", "").toString()
-        listV.adapter = GuestAdapter(this,guests,user){ userLogin ->
+    private fun initializeGuestsList() {
+        listViewGuest.adapter = GuestAdapter(this, guests, currentUserLogin) { userLogin ->
             removeGuest(userLogin)
         }
     }
 
-    public fun addGuest(view: View){
-        val houseId = intent.getStringExtra("houseId")
-        println("addGuest")
-        println(houseId)
-        println(token)
-
-        val guest: UserData = UserData(findViewById<EditText>(R.id.editTextInviteName).text.toString())
-        println(guest)
-        Api().post("https://polyhome.lesmoulinsdudev.com/api/houses/$houseId/users",guest,::addGuestSuccess,token)
-        findViewById<EditText>(R.id.editTextInviteName).setText("")
+    fun addGuest(view: View) {
+        val guest = UserData(editTextInviteName.text.toString())
+        Api().post(guestsUrl, guest, ::addGuestSuccess, token)
+        editTextInviteName.setText("")
     }
 
-    private fun addGuestSuccess(responseCode:Int){
-        if (responseCode == 200){
-            loadGuests()
-
-        }else{
-            println(responseCode)}
-    }
-
-    private fun removeGuest(userLogin:String){
-        val houseId = intent.getStringExtra("houseId")
-        val guest = UserData(userLogin)
-
-
-        Api().delete("https://polyhome.lesmoulinsdudev.com/api/houses/$houseId/users",guest,::removeGuestSuccess,token)
-    }
-
-    private fun removeGuestSuccess(responseCode:Int) {
+    private fun addGuestSuccess(responseCode: Int) {
         if (responseCode == 200) {
             loadGuests()
         } else {
-            println(responseCode)
+            showApiErrorToast(responseCode)
+        }
+    }
+
+    private fun removeGuest(userLogin: String) {
+        val guest = UserData(userLogin)
+        Api().delete(guestsUrl, guest, ::removeGuestSuccess, token)
+    }
+
+    private fun removeGuestSuccess(responseCode: Int) {
+        if (responseCode == 200) {
+            loadGuests()
+        } else {
+            showApiErrorToast(responseCode)
         }
     }
 
@@ -151,6 +123,18 @@ class InviteActivity : AppCompatActivity() {
         super.onResume()
         updateSelectedNavItem(findViewById(R.id.bottom_navigation))
         loadGuests()
+    }
 
+    override fun onPause() {
+        super.onPause()
+        val sharedPrefs = getSharedPreferences("UserPrefs", MODE_PRIVATE)
+        sharedPrefs.edit()
+            .putString("invite_draft", editTextInviteName.text.toString())
+            .apply()
+    }
+
+    override fun onStop() {
+        super.onStop()
+        guests.clear()
     }
 }

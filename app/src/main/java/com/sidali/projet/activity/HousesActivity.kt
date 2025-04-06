@@ -13,12 +13,14 @@ import com.sidali.projet.R
 import com.sidali.projet.dataClass.HouseData
 import com.sidali.projet.utils.getToken
 import com.sidali.projet.utils.setupTopNavUtils
+import com.sidali.projet.utils.showApiErrorToast
 
 class HousesActivity : AppCompatActivity() {
 
-    private lateinit var token : String
-    private val maisons : ArrayList<HouseData> = ArrayList()
-    private var firstLaunch : Boolean = true
+    private lateinit var token: String
+    private val maisons: ArrayList<HouseData> = ArrayList()
+    private var firstLaunch: Boolean = true
+    private val housesUrl = "https://polyhome.lesmoulinsdudev.com/api/houses"
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -26,21 +28,20 @@ class HousesActivity : AppCompatActivity() {
         setContentView(R.layout.activity_houses)
 
         token = getToken()
+
         loadMaisons()
         initializeMaisonsList()
-
 
         findViewById<ListView>(R.id.ListView).setOnItemClickListener(::onItemClicked)
         setupTopNavUtils(null, token)
     }
 
-
-    private fun loadMaisons(){
-        Api().get<ArrayList<HouseData>>("https://polyhome.lesmoulinsdudev.com/api/houses",::getMaisonSuccess,token)
+    private fun loadMaisons() {
+        Api().get(housesUrl, ::getMaisonSuccess, token)
     }
 
-    private fun getMaisonSuccess(responseCode:Int,listMaisons:ArrayList<HouseData>?){
-        if (responseCode == 200 && listMaisons != null){
+    private fun getMaisonSuccess(responseCode: Int, listMaisons: ArrayList<HouseData>?) {
+        if (responseCode == 200 && listMaisons != null) {
             maisons.clear()
             maisons.addAll(listMaisons)
             updateMaisonsList()
@@ -52,29 +53,30 @@ class HousesActivity : AppCompatActivity() {
                 firstLaunch = false
                 openHouse(maisons[0].houseId.toString())
             }
+        }else{
+            showApiErrorToast(responseCode)
         }
     }
 
-    private fun updateMaisonsList(){
+    private fun updateMaisonsList() {
         val listV = findViewById<ListView>(R.id.ListView)
-        runOnUiThread{
+        runOnUiThread {
             (listV.adapter as MaisonAdapter).notifyDataSetChanged()
         }
     }
 
-    private fun initializeMaisonsList(){
+    private fun initializeMaisonsList() {
         val listV = findViewById<ListView>(R.id.ListView)
-        listV.adapter = MaisonAdapter(this,maisons,token)
+        listV.adapter = MaisonAdapter(this, maisons, token)
     }
 
-
-    private fun openHouse(houseId:String){
+    private fun openHouse(houseId: String) {
         val intentRemote = Intent(this, RemoteActivity::class.java)
         intentRemote.putExtra("houseId", houseId)
         startActivity(intentRemote)
     }
 
-    fun onItemClicked(parent: AdapterView<*>, view: View, position:Int, id:Long) {
+    fun onItemClicked(parent: AdapterView<*>, view: View, position: Int, id: Long) {
         val clickedItem = parent.getItemAtPosition(position) as HouseData
         openHouse(clickedItem.houseId.toString())
     }
@@ -83,5 +85,4 @@ class HousesActivity : AppCompatActivity() {
         super.onResume()
         loadMaisons()
     }
-
 }
