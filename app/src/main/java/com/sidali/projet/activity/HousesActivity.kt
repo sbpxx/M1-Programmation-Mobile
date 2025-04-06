@@ -11,6 +11,7 @@ import com.example.androidtp2.Api
 import com.sidali.projet.adapter.MaisonAdapter
 import com.sidali.projet.R
 import com.sidali.projet.dataClass.HouseData
+import com.sidali.projet.dataClass.GuestData
 import com.sidali.projet.utils.getToken
 import com.sidali.projet.utils.setupTopNavUtils
 import com.sidali.projet.utils.showApiErrorToast
@@ -23,6 +24,7 @@ class HousesActivity : AppCompatActivity() {
     private val maisons: ArrayList<HouseData> = ArrayList()
     private var firstLaunch: Boolean = true
     private var skipFirstLaunch: Boolean = false
+    private val houseOwners = mutableMapOf<String, String>()
     private val housesUrl = "https://polyhome.lesmoulinsdudev.com/api/houses"
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -51,23 +53,61 @@ class HousesActivity : AppCompatActivity() {
         if (responseCode == 200 && listMaisons != null) {
             maisons.clear()
             maisons.addAll(listMaisons)
+
+            loadOwnersForAllMaisons()
+            handleAutoLoadIfNecessary()
+            skipFirstLaunch = true
             updateMaisonsList()
-
-            val prefs = getSharedPreferences("UserPrefs", MODE_PRIVATE)
-            val autoLoadHome = prefs.getBoolean("loadHome", false)
-
-            // Si l'utilisateur avait coché "Charger la première maison" dans les paramètres, on l'ouvre
-
-            if (autoLoadHome && maisons.isNotEmpty() && firstLaunch && !skipFirstLaunch) {
-                firstLaunch = false
-                openHouse(maisons[0].houseId.toString())
-            }
-        }else{
+        } else {
             runOnUiThread {
                 showApiErrorToast(responseCode)
             }
         }
     }
+
+    // Fonction pour charger les noms des propriétaires de chaque maison
+
+    private fun loadOwnersForAllMaisons() {
+        for (maison in maisons) {
+            fetchMaisonOwner(maison.houseId.toString())
+        }
+    }
+
+    private fun fetchMaisonOwner(houseId: String) {
+        val maisonUrl = "https://polyhome.lesmoulinsdudev.com/api/houses/$houseId/users"
+        Api().get(maisonUrl, object : (Int, ArrayList<GuestData>?) -> Unit {
+            override fun invoke(code: Int, guests: ArrayList<GuestData>?) {
+                getMaisonOwnerSuccess(code, guests, houseId)
+            }
+        }, token)
+    }
+
+    private fun getMaisonOwnerSuccess(responseCode: Int, listGuests: ArrayList<GuestData>?, houseId: String) {
+        if (responseCode == 200 && listGuests != null && listGuests.isNotEmpty()) {
+            houseOwners[houseId] = listGuests[0].userLogin
+            runOnUiThread {
+                updateMaisonsList()
+            }
+        }
+    }
+
+    private fun handleAutoLoadIfNecessary() {
+        val prefs = getSharedPreferences("UserPrefs", MODE_PRIVATE)
+        val autoLoadHome = prefs.getBoolean("loadHome", false)
+        val houseIdFromIntent = intent.getStringExtra("houseId")
+
+        val isFreshLaunch = houseIdFromIntent.isNullOrEmpty()
+
+        if (autoLoadHome && maisons.isNotEmpty() && firstLaunch && isFreshLaunch) {
+            firstLaunch = false
+            window.decorView.post {
+                println("🚀 Lancement initial : ouverture maison ${maisons[0].houseId}")
+                openHouse(maisons[0].houseId.toString())
+            }
+        }
+    }
+
+
 
     // Fonction pour mettre à jour la liste des maisons
 
@@ -82,8 +122,9 @@ class HousesActivity : AppCompatActivity() {
 
     private fun initializeMaisonsList() {
         val listV = findViewById<ListView>(R.id.ListView)
-        listV.adapter = MaisonAdapter(this, maisons, token)
+        listV.adapter = MaisonAdapter(this, maisons, houseOwners, token)
     }
+
     // Fonction pour ouvrir une maison
 
     private fun openHouse(houseId: String) {
@@ -91,6 +132,7 @@ class HousesActivity : AppCompatActivity() {
         intentRemote.putExtra("houseId", houseId)
         startActivity(intentRemote)
     }
+
     // Fonction pour gérer le clic sur une maison
 
     fun onItemClicked(parent: AdapterView<*>, view: View, position: Int, id: Long) {
@@ -100,7 +142,14 @@ class HousesActivity : AppCompatActivity() {
 
     override fun onResume() {
         super.onResume()
+         loadMaisons()
+        /*
+        normalement je devrait laisser loadMaisons
+        mais si l'utilisateur reviens trop vite sur cet intent les nombreuses requêtes API
+        risquent de faire crash l'intent.
+        ceci dit dans le cas d'une utilisation normale, ça ne crash pas si je laisse loadMaisons.
+         */
         skipFirstLaunch = true
-        loadMaisons()
     }
+
 }

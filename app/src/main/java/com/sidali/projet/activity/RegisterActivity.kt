@@ -44,7 +44,9 @@ class RegisterActivity : AppCompatActivity() {
     // Fonction pour fermer l'activité et revenir à l'activité de connexion
 
     private fun registerSuccess(responseCode: Int) {
+        val intent = Intent(this, LoginActivity::class.java)
         if (responseCode == 200) {
+            startActivity(intent)
             finish()
         } else {
             runOnUiThread {

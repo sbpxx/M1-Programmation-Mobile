@@ -7,20 +7,18 @@ import android.view.ViewGroup
 import android.widget.BaseAdapter
 import android.widget.ImageView
 import android.widget.TextView
-import com.example.androidtp2.Api
 import com.sidali.projet.R
-import com.sidali.projet.dataClass.GuestData
 import com.sidali.projet.dataClass.HouseData
 
 class MaisonAdapter(
     private var context: Context,
     private var dataSource: ArrayList<HouseData>,
+    private var houseOwners: Map<String, String>,
     private var token: String
 ) : BaseAdapter() {
 
     private val inflater: LayoutInflater =
         context.getSystemService(Context.LAYOUT_INFLATER_SERVICE) as LayoutInflater
-    var owner: String = ""
 
     override fun getCount(): Int {
         return dataSource.size
@@ -48,23 +46,12 @@ class MaisonAdapter(
             crown.visibility = View.VISIBLE
         } else {
             crown.visibility = View.GONE
-            getMaisonOwner(maison.houseId.toString(), token)
-            maisonTxt.text = "Maison de ${owner}"
+            val owner = houseOwners[maison.houseId.toString()]
+            maisonTxt.text = "Maison de $owner"
         }
 
         return view
     }
 
-    // Fonction pour récupérer le nom de l'utilisateur qui possède la maison
 
-    private fun getMaisonOwner(houseId: String, token: String) {
-        val maisonUrl = "https://polyhome.lesmoulinsdudev.com/api/houses/$houseId/users"
-        Api().get(maisonUrl, ::getMaisonOwnerSuccess, token)
-    }
-
-    private fun getMaisonOwnerSuccess(responseCode: Int, listGuests: ArrayList<GuestData>?) {
-        if (responseCode == 200 && listGuests != null) {
-            owner = listGuests[0].userLogin
-        }
-    }
 }

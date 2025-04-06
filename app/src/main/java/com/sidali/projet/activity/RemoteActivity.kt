@@ -172,6 +172,7 @@ class RemoteActivity : AppCompatActivity() {
                 sendCommandToDevice(device.id, device.availableCommands[1])
             }
         }
+        loadDevices()
     }
 
     fun openAllShutters(view: View) {

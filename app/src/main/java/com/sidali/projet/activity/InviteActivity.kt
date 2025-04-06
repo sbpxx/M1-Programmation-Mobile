@@ -156,10 +156,6 @@ class InviteActivity : AppCompatActivity() {
 
     override fun onPause() {
         super.onPause()
-        val sharedPrefs = getSharedPreferences("UserPrefs", MODE_PRIVATE)
-        sharedPrefs.edit()
-            .putString("invite_draft", editTextInviteName.text.toString())
-            .apply()
     }
 
     override fun onStop() {

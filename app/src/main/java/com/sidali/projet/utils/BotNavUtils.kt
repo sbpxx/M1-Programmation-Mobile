@@ -58,7 +58,13 @@ private fun Activity.isCurrentActivity(activityClass: Class<*>): Boolean {
 
 private fun Activity.launchActivity(activityClass: Class<*>, houseId: String?, token: String) {
     val intent = Intent(this, activityClass).apply {
-        flags = Intent.FLAG_ACTIVITY_CLEAR_TOP or Intent.FLAG_ACTIVITY_NEW_TASK
+        if (activityClass == HousesActivity::class.java) {
+            flags = Intent.FLAG_ACTIVITY_REORDER_TO_FRONT
+        }
+        else{
+            flags = Intent.FLAG_ACTIVITY_CLEAR_TOP or Intent.FLAG_ACTIVITY_NEW_TASK
+        }
+
     }
     intent.putExtra("houseId", houseId)
     startActivity(intent)
