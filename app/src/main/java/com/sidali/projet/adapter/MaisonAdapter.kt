@@ -40,6 +40,9 @@ class MaisonAdapter(
         val crown = view.findViewById<ImageView>(R.id.ic_maisonCrown)
         val maison = getItem(position) as HouseData
 
+        // La première maison est celle de l'utilisateur actuel, on affiche une couronne
+        // sinon on affiche le nom de l'utilisateur qui la possède
+
         if (position == 0) {
             maisonTxt.text = "Votre Maison"
             crown.visibility = View.VISIBLE
@@ -51,6 +54,8 @@ class MaisonAdapter(
 
         return view
     }
+
+    // Fonction pour récupérer le nom de l'utilisateur qui possède la maison
 
     private fun getMaisonOwner(houseId: String, token: String) {
         val maisonUrl = "https://polyhome.lesmoulinsdudev.com/api/houses/$houseId/users"

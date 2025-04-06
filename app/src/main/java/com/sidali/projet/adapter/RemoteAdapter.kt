@@ -13,9 +13,7 @@ import com.sidali.projet.dataClass.DeviceData
 class RemoteAdapter(
     private var context: Context,
     private var dataSource: ArrayList<DeviceData>,
-    private var houseId: String,
-    private var token: String,
-    private val onDeviceClick: (String, ArrayList<String>, String, Int?, Float?) -> Unit
+    private val onDeviceClick: (String, ArrayList<String>, String, Int?) -> Unit
 ) : BaseAdapter() {
 
     private val inflater: LayoutInflater = context.getSystemService(Context.LAYOUT_INFLATER_SERVICE) as LayoutInflater
@@ -42,6 +40,8 @@ class RemoteAdapter(
 
         button.text = device.id
 
+        // Mise à jour de l'icône en fonction du type de périphérique et de son état
+
         if (device.type == "light" && device.power == 1) {
             deviceIcon.setImageResource(R.drawable.ic_light_on)
         } else if (device.type == "light" && device.power == 0) {
@@ -61,7 +61,7 @@ class RemoteAdapter(
         }
 
         button.setOnClickListener {
-            onDeviceClick(device.id, device.availableCommands, device.type, device.power, device.opening)
+            onDeviceClick(device.id, device.availableCommands, device.type, device.power)
         }
 
         return view

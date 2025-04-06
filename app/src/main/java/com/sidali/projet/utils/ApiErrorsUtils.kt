@@ -3,6 +3,8 @@ package com.sidali.projet.utils
 import android.app.Activity
 import android.widget.Toast
 
+// Fonction pour afficher un message Toast en fonction du code de réponse de l'API
+
 fun Activity.showApiErrorToast(code: Int) {
     val message = when (code) {
         400 -> "Données invalides. Vérifiez les champs saisis."
@@ -13,5 +15,5 @@ fun Activity.showApiErrorToast(code: Int) {
         else -> "Erreur inattendue ($code)."
     }
 
-    Toast.makeText(this, message, Toast.LENGTH_SHORT).show()
+    Toast.makeText(this, message, Toast.LENGTH_LONG).show()
 }

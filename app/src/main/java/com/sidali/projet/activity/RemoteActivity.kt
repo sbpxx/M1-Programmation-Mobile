@@ -23,6 +23,8 @@ import kotlinx.coroutines.isActive
 import kotlinx.coroutines.launch
 import com.sidali.projet.utils.showApiErrorToast
 
+// Classe pour la liste des appareils de la maison
+
 class RemoteActivity : AppCompatActivity() {
 
     private lateinit var token: String
@@ -31,8 +33,11 @@ class RemoteActivity : AppCompatActivity() {
     private val refreshInterval = 10_000L
     private lateinit var houseId: String
 
-    private val Ldevices: DevicesListData = DevicesListData(ArrayList())
+    private val devicesList : DevicesListData = DevicesListData(ArrayList())
     private lateinit var devicesUrl: String
+
+    private var isReloading = false
+    private var errorShown = false
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -52,9 +57,13 @@ class RemoteActivity : AppCompatActivity() {
         setupTopNavUtils(houseId, token)
     }
 
+    // Fonction pour charger les appareils de la maison
+
     private fun loadDevices() {
         Api().get(devicesUrl, ::RemoteListSuccess, token)
     }
+
+    // Fonction pour mettre à jour la liste des appareils
 
     private fun RemoteListSuccess(responseCode: Int, listDevices: DevicesListData?) {
         runOnUiThread {
@@ -66,20 +75,31 @@ class RemoteActivity : AppCompatActivity() {
 
             if (responseCode == 200 && listDevices != null) {
                 waitMsg.visibility = View.GONE
-                Ldevices.devices.clear()
-                Ldevices.devices.addAll(listDevices.devices)
+                devicesList.devices.clear()
+                devicesList.devices.addAll(listDevices.devices)
                 updateDevicesList()
                 btnContainer.visibility = if (displayUsefulButtons) View.VISIBLE else View.GONE
                 refreshJob?.cancel()
+                isReloading = false
+                errorShown = false
             } else {
                 waitMsg.visibility = View.VISIBLE
                 btnContainer.visibility = View.GONE
-                waitReloader()
+                if (!isReloading) {
+                    waitReloader()
+                }
+                if (!errorShown) {
+                    showApiErrorToast(responseCode)
+                    errorShown = true
+                }
             }
         }
     }
 
+    // Fonction pour relancer le rafraichissement des appareils
+
     private fun waitReloader() {
+        isReloading = true
         refreshJob?.cancel()
         refreshJob = lifecycleScope.launch {
             while (isActive) {
@@ -89,25 +109,32 @@ class RemoteActivity : AppCompatActivity() {
         }
     }
 
+    // Fonction pour mettre à jour la liste des appareils
+
     private fun updateDevicesList() {
         runOnUiThread {
             (findViewById<ListView>(R.id.listview2).adapter as RemoteAdapter).notifyDataSetChanged()
         }
     }
 
+    // Fonction pour initialiser la liste des appareils
+
     private fun initializeDevicesList() {
         val listV = findViewById<ListView>(R.id.listview2)
-        listV.adapter = RemoteAdapter(this, Ldevices.devices, houseId, token) { deviceId, availableCommands, type, power, opening ->
-            onDeviceSelected(deviceId, availableCommands, type, power, opening)
+        listV.adapter = RemoteAdapter(this, devicesList.devices) { deviceId, availableCommands, type, power ->
+            onDeviceSelected(deviceId, availableCommands, type, power)
         }
     }
 
-    private fun onDeviceSelected(deviceId: String, availableCommands: ArrayList<String>, type: String, power: Int?, opening: Float?) {
-        if (availableCommands.isEmpty()) return
+    // Fonction pour gérer le clic sur un appareil
 
-        if (type == "light" && power != null) {
-            val command = if (power == 0) availableCommands[0] else availableCommands[1]
-            sendCommandToDevice(deviceId, command, power, opening)
+    private fun onDeviceSelected(deviceId: String, availableCommands: ArrayList<String>, type: String, power: Int?) {
+        if (type == "light") {
+            if (power == 0) {
+                sendCommandToDevice(deviceId, availableCommands[0])
+            } else {
+                sendCommandToDevice(deviceId, availableCommands[1])
+            }
         } else if (type == "rolling shutter" || type == "garage door") {
             val intent = Intent(this, RollingGarageActivity::class.java)
             intent.putExtra("houseId", houseId)
@@ -117,46 +144,54 @@ class RemoteActivity : AppCompatActivity() {
         }
     }
 
-    private fun sendCommandToDevice(deviceId: String, command: String, power: Int?, opening: Float?) {
+    // Fonction pour envoyer une commande à un ou plusieurs appareils
+
+    private fun sendCommandToDevice(deviceId: String, command: String) {
         val commandUrl = "https://polyhome.lesmoulinsdudev.com/api/houses/$houseId/devices/$deviceId/command"
         val commandData = CommandData(command)
         Api().post(commandUrl, commandData, ::onCommandSuccess, token)
     }
 
+    // Fonction pour rafraichir la liste des appareils après l'envoi d'une commande
+
     private fun onCommandSuccess(responseCode: Int) {
         if (responseCode == 200) {
             loadDevices()
         } else {
-            showApiErrorToast(responseCode)
+            runOnUiThread {
+                showApiErrorToast(responseCode)
+            }
         }
     }
 
+    // Fonctions pour les boutons utiles
+
     fun turnOffAllLights(view: View) {
-        for (device in Ldevices.devices) {
+        for (device in devicesList.devices) {
             if (device.type == "light") {
-                sendCommandToDevice(device.id, device.availableCommands[1], device.power, device.opening)
+                sendCommandToDevice(device.id, device.availableCommands[1])
             }
         }
     }
 
     fun openAllShutters(view: View) {
-        for (device in Ldevices.devices) {
+        for (device in devicesList.devices) {
             if (device.type == "rolling shutter") {
-                sendCommandToDevice(device.id, device.availableCommands[0], device.power, device.opening)
+                sendCommandToDevice(device.id, device.availableCommands[0])
             }
         }
     }
 
     fun closeAllShutters(view: View) {
-        for (device in Ldevices.devices) {
+        for (device in devicesList.devices) {
             if (device.type == "rolling shutter") {
-                sendCommandToDevice(device.id, device.availableCommands[1], device.power, device.opening)
+                sendCommandToDevice(device.id, device.availableCommands[1])
             }
         }
     }
 
     fun openGarageInterface(view: View) {
-        for (device in Ldevices.devices) {
+        for (device in devicesList.devices) {
             if (device.type == "garage door") {
                 val intent = Intent(this, RollingGarageActivity::class.java)
                 intent.putExtra("houseId", houseId)

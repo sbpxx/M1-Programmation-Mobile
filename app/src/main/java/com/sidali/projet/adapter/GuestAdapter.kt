@@ -42,6 +42,9 @@ class GuestAdapter(
 
         guestNameTxt.text = guest.userLogin
 
+        // Si l'utilisateur actuel est propriétaire de la maison, on affiche le bouton de suppression sur les autres utilisateurs
+        // sinon on le cache
+
         if (position == 0) {
             deleteButton.visibility = View.GONE
             crown.visibility = View.VISIBLE

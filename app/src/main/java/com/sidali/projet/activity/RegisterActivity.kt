@@ -11,6 +11,8 @@ import com.sidali.projet.R
 import com.sidali.projet.dataClass.LoginData
 import com.sidali.projet.utils.showApiErrorToast
 
+// Classe pour la création de compte
+
 class RegisterActivity : AppCompatActivity() {
 
     private val registerUrl = "https://polyhome.lesmoulinsdudev.com/api/users/register"
@@ -21,11 +23,15 @@ class RegisterActivity : AppCompatActivity() {
         setContentView(R.layout.activity_register)
     }
 
+    // Fonction pour lancer l'activité de connexion
+
     fun loginAccount(view: View) {
         val intent = Intent(this, LoginActivity::class.java)
         startActivity(intent)
         finish()
     }
+
+    // Fonction pour s'inscrire
 
     fun register(view: View) {
         val login = findViewById<EditText>(R.id.txtRegLogin)
@@ -35,11 +41,15 @@ class RegisterActivity : AppCompatActivity() {
         Api().post(registerUrl, reg, ::registerSuccess)
     }
 
+    // Fonction pour fermer l'activité et revenir à l'activité de connexion
+
     private fun registerSuccess(responseCode: Int) {
         if (responseCode == 200) {
             finish()
         } else {
-            showApiErrorToast(responseCode)
+            runOnUiThread {
+                showApiErrorToast(responseCode)
+            }
         }
     }
 }

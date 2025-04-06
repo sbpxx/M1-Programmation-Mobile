@@ -18,6 +18,8 @@ import kotlinx.coroutines.isActive
 import kotlinx.coroutines.launch
 import com.sidali.projet.utils.showApiErrorToast
 
+// Classe pour la gestion des volets et du garage
+
 class RollingGarageActivity : AppCompatActivity() {
 
     private lateinit var houseId: String
@@ -56,6 +58,8 @@ class RollingGarageActivity : AppCompatActivity() {
         refreshPercentage()
     }
 
+    // Fonction pour rafraichir  en boucle le pourcentage d'ouverture du volet/garage
+
     private fun onRefreshingPercentage() {
         refreshJob?.cancel()
         refreshJob = lifecycleScope.launch {
@@ -66,10 +70,7 @@ class RollingGarageActivity : AppCompatActivity() {
         }
     }
 
-    override fun onDestroy() {
-        refreshJob?.cancel()
-        super.onDestroy()
-    }
+    // Fonctions pour contrôler le volet/garage
 
     fun monter(view: View) {
         commandData = CommandData(availableCommands[0])
@@ -97,13 +98,19 @@ class RollingGarageActivity : AppCompatActivity() {
         if (responseCode == 200) {
             // rien à faire ici
         } else {
-            showApiErrorToast(responseCode)
+            runOnUiThread {
+                showApiErrorToast(responseCode)
+            }
         }
     }
+
+    // Fonction pour rafraichir à l'ouverture ou bien retour sur intent, le pourcentage d'ouverture du volet/garage
 
     private fun refreshPercentage() {
         Api().get(devicesUrl, ::onRefreshSuccess, token)
     }
+
+    // Fonction de mise à jour du pourcentage d'ouverture du volet/garage
 
     private fun onRefreshSuccess(responseCode: Int, data: DevicesListData?) {
         if (responseCode == 200 && data != null) {
@@ -124,7 +131,14 @@ class RollingGarageActivity : AppCompatActivity() {
                 txtPercentage.text = percentage?.toInt().toString() + "%"
             }
         } else {
-            showApiErrorToast(responseCode)
+            runOnUiThread {
+                showApiErrorToast(responseCode)
+            }
         }
+    }
+
+    override fun onDestroy() {
+        refreshJob?.cancel()
+        super.onDestroy()
     }
 }

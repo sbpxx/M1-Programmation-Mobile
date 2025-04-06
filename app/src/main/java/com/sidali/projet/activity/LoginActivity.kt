@@ -14,6 +14,8 @@ import com.sidali.projet.dataClass.LoginData
 import com.sidali.projet.dataClass.TokenData
 import com.sidali.projet.utils.showApiErrorToast
 
+// Classe pour la connexion de l'utilisateur
+
 class LoginActivity : AppCompatActivity() {
 
     private lateinit var login: EditText
@@ -34,11 +36,15 @@ class LoginActivity : AppCompatActivity() {
         loadUserInfo()
     }
 
+    // Fonction pour lancer l'activité de création de compte
+
     fun registerNewAccount(view: View) {
         val intent = Intent(this, RegisterActivity::class.java)
         startActivity(intent)
         finish()
     }
+
+    // Fonction pour connecter l'utilisateur
 
     fun login(view: View) {
         val log = login.text.toString()
@@ -48,16 +54,22 @@ class LoginActivity : AppCompatActivity() {
         Api().post<LoginData, TokenData?>(loginUrl, logInfo, ::loginSuccess)
     }
 
+    // Fonction pour sauvegarder les informations de connexion de l'utilisateur et lancer l'activité des maisons
+
     private fun loginSuccess(responseCode: Int, token: TokenData?) {
         if (responseCode == 200 && token != null) {
             saveUserInfo(token.token)
-            val intentMenu = Intent(this, HousesActivity::class.java)
-            startActivity(intentMenu)
+            val intentHouses = Intent(this, HousesActivity::class.java)
+            startActivity(intentHouses)
             finish()
         } else {
-            showApiErrorToast(responseCode)
+            runOnUiThread {
+                showApiErrorToast(responseCode)
+            }
         }
     }
+
+    // Fonction pour sauvegarder les informations de connexion de l'utilisateur
 
     private fun saveUserInfo(token: String) {
         val prefs = getSharedPreferences("UserPrefs", MODE_PRIVATE)
@@ -77,9 +89,13 @@ class LoginActivity : AppCompatActivity() {
         editor.apply()
     }
 
+    // Fonction pour charger les informations de connexion de l'utilisateur
+
     private fun loadUserInfo() {
         val prefs = getSharedPreferences("UserPrefs", Context.MODE_PRIVATE)
         val stayConnected = prefs.getBoolean("stayConnected", false)
+
+        // Si l'utilisateur avait coché "Rester connecté", on charge les informations de connexion
 
         if (stayConnected) {
             login.setText(prefs.getString("login", ""))
